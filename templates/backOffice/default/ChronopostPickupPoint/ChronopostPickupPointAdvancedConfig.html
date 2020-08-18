@@ -1,0 +1,41 @@
+<br>
+<div class="col-md-12 row table">
+    {form name="chronopost_pickup_point_configuration_form" type="chronopost_pickup_point_configuration_form"}
+        <form class="" action="{url path='/admin/module/ChronopostPickupPoint/config'}" method="post">
+            <div class="title">{intl l="Chronopost informations"}</div>
+            {include
+            file      = "includes/inner-form-toolbar.html"
+            hide_flags = true
+            hide_save_and_close_button = true
+            }
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <div class="panel-title">{intl l="Service Configuration" d='chronopost.home.delivery.bo.default'}</div>
+                </div>
+                <div class="panel-body">
+                    <div class="col-md-6">
+                        {form_hidden_fields form=$form}
+
+                        {if $form_error}
+                            <div class="alert alert-danger">{$form_error_message}</div>
+                        {/if}
+
+                        {render_form_field field="success_url" value={url path="/admin/module/ChronopostPickupPoint"}}
+
+                        {render_form_field field="chronopost_pickup_point_code"}
+
+                        {render_form_field field="chronopost_pickup_point_password"}
+                    </div>
+                    <div class="col-md-6">
+                        <b>{intl l="Allowed shipping modes"}</b>
+
+                        {chronopostPickupPointGetDeliveryTypesStatusKeys}
+                        {foreach from=$chronopostPickupPointDeliveryTypesStatusKeys key=k item=statusKey}
+                            {render_form_field field={$statusKey}}
+                        {/foreach}
+                    </div>
+                </div>
+            </div>
+        </form>
+    {/form}
+</div>

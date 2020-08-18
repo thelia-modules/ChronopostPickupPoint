@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<routes xmlns="http://symfony.com/schema/routing"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
+
+    <route id="chronopost.pickup.point.config.save" path="/admin/module/ChronopostPickupPoint/config" methods="post">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointBackOfficeController::saveAction</default>
+    </route>
+
+    <route id="chronopost.pickup.point.configShipper.save" path="/admin/module/ChronopostPickupPoint/configShipper" methods="post">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointBackOfficeController::saveActionShipper</default>
+    </route>
+
+    <route id="chronopost.pickup.point.save.label" path="/admin/module/ChronopostPickupPoint/saveLabel">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointBackOfficeController::saveLabel</default>
+    </route>
+
+
+    <route id="chronopost.pickup.point.toggle.freeshipping" path="/admin/module/chronopost-pickup-point/freeshipping" methods="post">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointFreeShippingController::toggleFreeShippingActivation</default>
+    </route>
+
+    <route id="chronopost.pickup.point.edit.freeshippingfrom" path="/admin/module/chronopost-pickup-point/freeshipping_from" methods="post">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointFreeShippingController::setFreeShippingFrom</default>
+    </route>
+
+    <route id="chronopost.pickup.point.edit.areafreeshipping" path="/admin/module/chronopost-pickup-point/area_freeshipping" methods="post">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointFreeShippingController::setAreaFreeShipping</default>
+    </route>
+
+
+    <route id="chronopost.pickup.point.add.price" path="/admin/module/chronopost-pickup-point/slice/save" methods="post">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointSliceController::saveSliceAction</default>
+    </route>
+    <route id="chronopost.pickup.point.update.price" path="/admin/module/chronopost-pickup-point/slice/delete" methods="post">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointSliceController::deleteSliceAction</default>
+    </route>
+
+    <route id="chronopost.pickup.point.get.coordinates" path="/admin/module/chronopost-pickup-point/coordinates">
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointRelayController::findByAddress</default>
+    </route>
+
+</routes>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database defaultIdMethod="native" name="thelia" namespace="ChronopostPickupPoint\Model"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:noNamespaceSchemaLocation="../../../vendor/propel/propel/resources/xsd/database.xsd" >
+
+    <table name="chronopost_pickup_point_order">
+        <column name="id" autoIncrement="true" primaryKey="true" required="true" type="INTEGER" />
+        <column name="order_id" required="true" type="INTEGER" />
+
+        <column name="delivery_type" type="LONGVARCHAR" />
+        <column name="delivery_code" type="LONGVARCHAR" />
+        <column name="label_directory" type="LONGVARCHAR" />
+        <column name="label_number" type="LONGVARCHAR" />
+
+        <foreign-key foreignTable="order" name="fk_chronopost_pickup_point_order_order_id" onDelete="CASCADE" onUpdate="RESTRICT">
+            <reference foreign="id" local="order_id" />
+        </foreign-key>
+    </table>
+
+    <table name="chronopost_pickup_point_delivery_mode">
+        <column name="id" primaryKey="true" autoIncrement="true" required="true" type="INTEGER" />
+        <column name="title" size="255" type="VARCHAR"/>
+        <column name="code" size="55" type="VARCHAR" required="true"/>
+        <column name="freeshipping_active" type="BOOLEAN"/>
+        <column name="freeshipping_from" type="FLOAT"/>
+    </table>
+
+    <table name="chronopost_pickup_point_price">
+        <column name="id" primaryKey="true" autoIncrement="true" required="true" type="INTEGER" />
+        <column name="area_id" required="true" type="INTEGER" />
+        <column name="delivery_mode_id" required="true" type="INTEGER" />
+        <column name="weight_max" type="FLOAT" />
+        <column name="price_max" type="FLOAT" />
+        <column name="franco_min_price" type="FLOAT" />
+        <column name="price" required="true" type="FLOAT" />
+        <foreign-key foreignTable="area" name="fk_chronopost_pickup_point_price_area_id" onDelete="RESTRICT" onUpdate="RESTRICT">
+            <reference foreign="id" local="area_id" />
+        </foreign-key>
+        <foreign-key foreignTable="chronopost_pickup_point_delivery_mode" name="fk_chronopost_pickup_point_price_delivery_mode_id" onDelete="RESTRICT" onUpdate="RESTRICT">
+            <reference foreign="id" local="delivery_mode_id" />
+        </foreign-key>
+    </table>
+
+    <table name="chronopost_pickup_point_area_freeshipping">
+        <column name="id" primaryKey="true" autoIncrement="true" required="true" type="INTEGER" />
+        <column name="area_id" required="true" type="INTEGER" />
+        <column name="delivery_mode_id" required="true" type="INTEGER" />
+        <column name="cart_amount"  defaultValue="0.000000" scale="6" size="16" type="DECIMAL" />
+        <foreign-key foreignTable="area" name="fk_chronopost_pickup_point_area_freeshipping_area_id" onDelete="RESTRICT" onUpdate="RESTRICT">
+            <reference foreign="id" local="area_id" />
+        </foreign-key>
+        <foreign-key foreignTable="chronopost_pickup_point_delivery_mode" name="fk_chronopost_pickup_point_area_freeshipping_delivery_mode_id" onDelete="RESTRICT" onUpdate="RESTRICT">
+            <reference foreign="id" local="delivery_mode_id" />
+        </foreign-key>
+    </table>
+
+    <external-schema filename="local/config/schema.xml" referenceOnly="true" />
+</database>

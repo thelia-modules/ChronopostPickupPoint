@@ -1,0 +1,256 @@
+{assign var="tab" value="configure"}
+{if isset($smarty.get.current_tab)}
+    {assign var="tab" value=$smarty.get.current_tab}
+{/if}
+
+    {* default currency *}
+{loop type="currency" name="default_currency" default_only="1"}
+{$currencySymbol=$SYMBOL}
+{/loop}
+
+
+    <div class="general-block-decorator">
+        <div class="row">
+            <div class="col-md-12">
+
+                <ul id="tabbed-menu" class="nav nav-tabs">
+
+                    <li class="{if $tab eq "configure"}active{/if}"><a data-toggle="tab" href="#configure">{intl l="Advanced configuration" d='chronopost.pickup.point.bo.default'}</a></li>
+
+                    {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode"}
+                        <li class="{if $tab eq "prices_slices_tab_{$ID}"}active{/if}"><a data-toggle="tab" href="#prices_slices_tab_{$ID}">{intl l="Price slices for \"%mode\"" d='chronopost.pickup.point.bo.default' mode={$TITLE}}</a></li>
+                    {/loop}
+
+                </ul>
+
+
+                <div class="tab-content">
+
+                    <div id="configure"  class="tab-pane {if $tab eq "configure"}active{/if} form-container">
+                        {include file = "ChronopostPickupPoint/ChronopostPickupPointAdvancedConfig.html"}
+                    </div>
+
+
+                    {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode"}
+                    {$deliveryModeId=$ID}
+                        <div id="prices_slices_tab_{$deliveryModeId}" class="tab-pane {if $tab eq "prices_slices_tab_$deliveryModeId" }active{/if} form-container">
+                            {if null !== $smarty.get.price_error && {$deliveryModeId} == $smarty.get.price_error_id}
+                                <div class="alert alert-danger" role="alert">{$smarty.get.price_error}</div>
+                            {/if}
+                            <br/>
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <!-- checkbox free shipping -->
+                                    {assign var="isChronopostPickupPointFreeShipping" value=0}
+                                    {form  name="chronopost.pickup.point.freeshipping.form"}
+                                        <form action="{url path="/admin/module/chronopost-pickup-point/freeshipping"}" method="post" id="freeshippingform-{$deliveryModeId}">
+                                            {form_hidden_fields form=$form}
+
+                                            {form_field form=$form field="delivery_mode"}
+                                                <input type="hidden" name="{$name}" value="{$deliveryModeId}">
+                                            {/form_field}
+
+                                            {form_field form=$form field="freeshipping"}
+                                                <label>
+                                                    {intl l="Activate total free shipping " d="chronopost.pickup.point.bo.default"}
+                                                </label>
+
+                                                <div class="switch-small freeshipping-activation-ChronopostPickupPoint" data-id="{$deliveryModeId}" data-on="success" data-off="danger" data-on-label="<i class='glyphicon glyphicon-ok-circle'></i>" data-off-label="<i class='glyphicon glyphicon-remove-circle'></i>">
+                                                    <input type="checkbox" name="{$name}" value="true" {if $FREESHIPPING_ACTIVE}checked{assign var="isChronopostPickupPointFreeShipping" value=1}{/if} />
+                                                </div>
+                                            {/form_field}
+                                        </form>
+                                    {/form}
+                                </div>
+
+
+
+                                <div class="col-md-6" id="freeshipping-from-{$deliveryModeId}" {if $isChronopostPickupPointFreeShipping eq 1} style="display:none;" {/if}>
+                                    <form action="{url path="/admin/module/chronopost-pickup-point/freeshipping_from"}"  method="post">
+                                        <div class="input-group">
+                                            <span class="input-group-addon {if $FREESHIPPING_FROM}alert-success{/if}">{intl l="Or activate free shipping from (€) :" d="chronopost.pickup.point.bo.default"}</span>
+                                            <input type="hidden" name="delivery-mode" value="{$deliveryModeId}">
+                                            <input type="number" name="price" class="form-control" value="{$FREESHIPPING_FROM}">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="submit">{intl l="Save"}</button>
+                                            </span>
+                                        </div>
+                                    </form>
+                                </div>
+
+                            </div>
+                            <br/>
+
+                            <div class="alert alert-info">
+                                {intl l="You can create price slices by specifying a maximum cart weight and/or a maximum cart price." d='socolissimo.bo.default'}
+                                {intl l="The slices are ordered by maximum cart weight then by maximum cart price." d='socolissimo.bo.default'}
+                                {intl l="If a cart matches multiple slices, it will take the last slice following that order." d='socolissimo.bo.default'}
+                                {intl l="If you don't specify a cart weight in a slice, it will have priority over the slices with weight." d='socolissimo.bo.default'}
+                                {intl l="If you don't specify a cart price in a slice, it will have priority over the other slices with the same weight." d='socolissimo.bo.default'}
+                                {intl l="If you specify both, the cart will require to have a lower weight AND a lower price in order to match the slice." d='socolissimo.bo.default'}
+                            </div>
+
+                            <div class="slices" class="form-container">
+
+                                {loop type="module" name="module-id-loop" code="ChronopostPickupPoint"}
+                                    {assign var="module_id" value=$ID}
+                                {/loop}
+                                {loop type="area" name="area_loop" module_id=$module_id backend_context=true}
+                                {$area_id=$ID}
+                                    <div class="col-md-12">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-condensed table-left-aligned">
+                                                <thead>
+                                                <tr>
+                                                    <th>
+                                                        <label class="clearfix">
+                                                            <small>{intl d='chronopost.pickup.point.bo.default' l="Area : "}</small> {$NAME}
+                                                        </label>
+                                                    </th>
+                                                    <th width="40%">
+                                                        <div id="area-freeshipping-{$area_id}" {if $isChronopostPickupPointFreeShipping eq 1}  style="display:none;" {/if}>
+                                                            <form action="{url path="/admin/module/chronopost-pickup-point/area_freeshipping"}"  method="post">
+                                                                <div class="input-group">
+                                                                    <span class="input-group-addon {if $area_id }alert-success{/if}">{intl l="Activate free shipping from (€) :" d="chronopost.pickup.point.bo.default"}</span>
+                                                                    <input type="hidden" name="area-id" value="{$area_id}">
+                                                                    <input type="hidden" name="delivery-mode" value="{$deliveryModeId}">
+
+                                                                    {ifloop rel="area_freeshipping"}
+                                                                    {loop type="chronopost.pickup.point.area.freeshipping" name="area_freeshipping" area_id=$area_id delivery_mode_id=$deliveryModeId}
+                                                                        <input type="number" step="0.01" name="cart-amount" class="form-control" value="{$CART_AMOUNT}">
+                                                                    {/loop}
+                                                                    {/ifloop}
+                                                                    {elseloop rel="area_freeshipping"}
+                                                                        <input type="number" step="0.01" name="cart-amount" class="form-control" value="">
+                                                                    {/elseloop}
+
+                                                                    <span class="input-group-btn">
+                                                                        <button class="btn btn-default" type="submit">{intl l="Save"}</button>
+                                                                    </span>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </th>
+                                                </tr>
+                                                </thead>
+                                                <thead>
+                                                <tr>
+                                                    <th class="col-md-3">{intl l="Weight up to ... kg" d='chronopost.pickup.point.bo.default'}</th>
+                                                    <th class="col-md-3">{intl l="Untaxed Price up to ... %symbol" symbol=$currencySymbol d='chronopost.pickup.point.bo.default'}</th>
+                                                    <th class="col-md-5">{intl l="Price (%symbol)" symbol=$currencySymbol d='chronopost.pickup.point.bo.default'}</th>
+                                                    <th class="col-md-1">{intl l="Actions" d='chronopost.pickup.point.bo.default'}</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                {loop type="chronopost" name="chronopost_pickup_point_area_$ID" area_id={$area_id} delivery_mode_id={$deliveryModeId} }
+                                                    <tr class="js-slice" data-area="{$area_id}" data-id="{$SLICE_ID}" data-delivmode="{$deliveryModeId}">
+                                                        <th class="col-md-3">
+                                                            <input type="text" data-field="weight-max" class="form-control js-slice-weight-max" value="{$MAX_WEIGHT}" data-old="{$MAX_WEIGHT}" />
+                                                        </th>
+                                                        <th class="col-md-3">
+                                                            <input type="text" data-field="price-max" class="form-control js-slice-price-max" value="{$MAX_PRICE}" data-old="{$MAX_PRICE}" />
+                                                        </th>
+                                                        <th class="col-md-5">
+                                                            <input type="text" data-field="price" class="form-control js-slice-price" value="{$PRICE}" data-old="{$PRICE}" />
+                                                        </th>
+                                                        <th class="col-md-1">
+                                                            <div class="btn-group">
+                                                                {loop type="auth" name="can_change" role="ADMIN" module="customdelivery" access="UPDATE"}
+                                                                    <a class="btn btn-default btn-xs js-slice-save" title="{intl d='chronopost.pickup.point.bo.default' l='Save this price slice'}">
+                                                                        <span class="glyphicon glyphicon-floppy-disk"></span>
+                                                                    </a>
+                                                                {/loop}
+                                                                {loop type="auth" name="can_change" role="ADMIN" module="customdelivery" access="DELETE"}
+                                                                    <a class="btn btn-default btn-xs js-slice-delete" title="{intl d='chronopost.pickup.point.bo.default' l='Delete this price slice'}" data-id="{$ID}">
+                                                                        <span class="glyphicon glyphicon-trash"></span>
+                                                                    </a>
+                                                                {/loop}
+                                                            </div>
+                                                        </th>
+                                                    </tr>
+                                                {/loop}
+
+                                                {* New slice *}
+                                                {loop type="auth" name="can_change" role="ADMIN" module="chronopost" access="CREATE"}
+                                                    <tr class="js-slice-new" data-area="{$area_id}" data-id="0" data-delivmode="{$deliveryModeId}">
+                                                        <th class="col-md-3">
+                                                            <input type="text" data-field="weight-max" class="form-control js-slice-weight-max" value="" />
+                                                        </th>
+                                                        <th class="col-md-3">
+                                                            <input type="text" data-field="price-max" class="form-control js-slice-price-max" value="" />
+                                                        </th>
+                                                        <th class="col-md-5">
+                                                            <input type="text" data-field="price" class="form-control js-slice-price" value="" />
+                                                        </th>
+                                                        <th class="col-md-1">
+                                                            <a class="btn btn-default btn-xs js-slice-add" title="{intl d='chronopost.pickup.point.bo.default' l='Add this price slice'}" >
+                                                                <span class="glyphicon glyphicon-plus"></span>
+                                                            </a>
+                                                        </th>
+                                                    </tr>
+                                                {/loop}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                {/loop}
+                                {elseloop rel="area_loop"}
+                                    <div class="col-md-12">
+                                        <div class="alert alert-warning">
+                                            {intl d='chronopost.pickup.point.bo.default' l="You should first attribute shipping zones to the modules: "}
+                                            <a href="{url path="/admin/configuration/shipping_zones/update/$module_id"}">
+                                                {intl d='chronopost.pickup.point.bo.default' l="manage shipping zones"}
+                                            </a>
+                                        </div>
+                                    </div>
+                                {/elseloop}
+                            </div>
+
+                        </div>
+                    {/loop}
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    {include
+    file = "includes/generic-warning-dialog.html"
+
+    dialog_id       = "chronopost_pickup_point_dialog"
+    dialog_body     = ""
+    dialog_title    = {intl d='chronopost.pickup.point.bo.default' l="Message"}
+    }
+
+    {* JS Templates *}
+    <script id="tpl-slice" type="text/html">
+        <tr class="js-slice" data-area="<%=areaId %>" data-id="<%=id %>" data-delivmode="<%=deliveryModeId %>">
+            <th class="col-md-3">
+                <input type="text" data-field="weight-max" class="form-control js-slice-weight-max" value="<%=weightMax %>" data-old="<%=weightMax %>" />
+            </th>
+            <th class="col-md-3">
+                <input type="text" data-field="price-max" class="form-control js-slice-price-max" value="<%=priceMax %>" data-old="<%=priceMax %>" />
+            </th>
+            <th class="col-md-5">
+                <input type="text" data-field="price" class="form-control js-slice-price" value="<%=price %>" data-old="<%=price %>" />
+            </th>
+            <th class="col-md-1">
+                <div class="btn-group">
+                    {loop type="auth" name="can_change" role="ADMIN" module="chronopost" access="UPDATE"}
+                        <a class="btn btn-default btn-xs js-slice-save" title="{intl d='chronopost.pickup.point.bo.default' l='Save this price slice'}">
+                            <span class="glyphicon glyphicon-floppy-disk"></span>
+                        </a>
+                    {/loop}
+                    {loop type="auth" name="can_change" role="ADMIN" module="chronopost" access="DELETE"}
+                        <a class="btn btn-default btn-xs js-slice-delete" title="{intl d='chronopost.pickup.point.bo.default' l='Delete this price slice'}" data-id="<%=id %>">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </a>
+                    {/loop}
+                </div>
+            </th>
+        </tr>
+    </script>
+

@@ -1,0 +1,12 @@
+{
+  "name": "thelia/chronopost-pickup-point-module",
+  "license": "LGPL-3.0+",
+  "type": "thelia-module",
+  "require": {
+    "thelia/installer": "~1.1"
+  },
+  "extra": {
+    "installer-name": "ChronopostPickupPoint"
+  },
+  "description": "Chronopost delivery module for pickup point deliveries."
+}
