@@ -1,0 +1,34 @@
+{extends file="email-layout.tpl"}
+
+{* Do not provide a "Open in browser" link  *}
+{block name="browser"}{/block}
+{* No pre-header *}
+{block name="pre-header"}{/block}
+
+{* Subject  *}
+{block name="email-subject"}{intl l="Your order confirmation Nº %ref" ref={$order_ref}}{/block}
+
+{* Title  *}
+{block name="email-title"}{/block}
+
+{* Content  *}
+{block name="email-content"}
+
+    {loop type="customer" name="customer.politesse" id={$customer_id} current="0"}
+    {assign var="customerRef" value=$REF}
+
+        <p>{if {$TITLE} == 9}{intl l="Dear Mr. "}
+            {else}{intl l="Dear Ms. "}
+            {/if}
+            {$FIRSTNAME} {$LASTNAME},
+        </p>
+
+    {/loop}
+
+    <p>{intl l="We are pleased to inform you that your order number"} {$order_ref} {intl l="has been shipped on"} {format_date date=$update_date output="date"} {intl l="with the tracking number"} <strong>{$package}</strong>.</p>
+
+    <p>{intl l='<a href="https://www.chronopost.fr/tracking-no-cms/suivi-page?listeNumerosLT=%package">Click here</a> to track your shipment.' package=$package}</p>
+    <p>{intl l='Thank you for your shopping with us and hope to see you soon on <a href="#">www.yourshop.com</a>'}</p>
+    <p>{intl l="Your on-line store Manager"}<br/>
+        {intl l="Your shop"}</p>
+{/block}

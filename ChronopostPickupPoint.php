@@ -28,6 +28,8 @@ use Thelia\Install\Database;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\Country;
 use Thelia\Model\CountryArea;
+use Thelia\Model\Message;
+use Thelia\Model\MessageQuery;
 use Thelia\Model\ModuleQuery;
 use Thelia\Module\AbstractDeliveryModule;
 use Thelia\Module\BaseModule;
@@ -36,7 +38,9 @@ use Thelia\Module\Exception\DeliveryException;
 class ChronopostPickupPoint extends AbstractDeliveryModule
 {
     /** @var string */
-    const DOMAIN_NAME = 'chronopost';
+    const DOMAIN_NAME = 'chronopostPickupPoint';
+
+    const CHRONOPOST_CONFIRMATION_MESSAGE_NAME = 'chronopost_pickup_point_confirmation_message_name';
 
     /**
      * @param ConnectionInterface|null $con
@@ -79,6 +83,24 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
             }
         }
 
+        if (null === MessageQuery::create()->findOneByName(self::CHRONOPOST_CONFIRMATION_MESSAGE_NAME)) {
+            $message = new Message();
+
+            $message
+                ->setName(self::CHRONOPOST_CONFIRMATION_MESSAGE_NAME)
+                ->setHtmlLayoutFileName('order_shipped.html')
+                ->setTextLayoutFileName('order_shipped.txt')
+                ->setLocale('en_US')
+                ->setTitle('Order send confirmation')
+                ->setSubject('Order send confirmation')
+
+                ->setLocale('fr_FR')
+                ->setTitle('Confirmation d\'envoi de commande')
+                ->setSubject('Confirmation d\'envoi de commande')
+
+                ->save()
+            ;
+        }
     }
 
     /**

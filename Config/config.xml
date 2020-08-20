@@ -5,10 +5,9 @@
         xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
 
     <loops>
+        <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointLoop" name="chronopost.pickup.point" />
         <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointDeliveryMode" name="chronopost.pickup.point.delivery.mode" />
-        <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointLoop" name="chronopost" />
         <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointAreaFreeshipping" name="chronopost.pickup.point.area.freeshipping" />
-        <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointExportLabelLoop" name="chronopost.pickup.point.export.label" />
         <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointGetRelay" name="chronopost.pickup.point.get.relay" />
     </loops>
 
@@ -31,6 +30,11 @@
         </service>
         <service id="api.chronopost.pickup.point" class="ChronopostPickupPoint\EventListeners\APIListener" scope="request">
             <argument type="service" id="service_container"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+        <service id="chronopost.pickup.point.notification.mail" class="ChronopostPickupPoint\EventListeners\ShippingNotificationSender">
+            <argument type="service" id="thelia.parser" />
+            <argument type="service" id="mailer"/>
             <tag name="kernel.event_subscriber"/>
         </service>
     </services>
