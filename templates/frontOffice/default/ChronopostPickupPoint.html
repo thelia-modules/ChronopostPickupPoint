@@ -44,6 +44,7 @@
         function displayContentPickupPoint () {
             $("#deliverytype-chronopost-pickup-point-tr").show(function () {
                 $('.btn-checkout-next').hide();
+                $('#form-cart-delivery').find("> button").hide();
             });
         }
 
@@ -57,6 +58,7 @@
                 if($(this).attr('id') != 'delivery-method_{$module}') {
                     $("#deliverytype-chronopost-pickup-point-tr").hide();
                     $('.btn-checkout-next').show();
+                    $('#form-cart-delivery').find("> button").show();
                 } else {
                     displayContentPickupPoint();
                 }
