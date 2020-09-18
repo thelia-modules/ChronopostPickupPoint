@@ -54,5 +54,21 @@
         </foreign-key>
     </table>
 
+
+    <table name="chronopost_pickup_point_order_address">
+        <column name="id" primaryKey="true" autoIncrement="true" required="true" type="INTEGER" />
+        <column name="company" type="VARCHAR" />
+        <column name="Address1" type="VARCHAR" />
+        <column name="Address2" type="VARCHAR" />
+        <column name="Address3" type="VARCHAR" />
+        <column name="zip_code" type="VARCHAR" />
+        <column name="city" type="VARCHAR" />
+        <column name="country_id" required="true" type="INTEGER" />
+
+        <foreign-key foreignTable="country" name="fk_address_chronopost_pickup_point_country_id" onDelete="RESTRICT" onUpdate="RESTRICT">
+            <reference foreign="id" local="country_id" />
+        </foreign-key>
+    </table>
+
     <external-schema filename="local/config/schema.xml" referenceOnly="true" />
 </database>
