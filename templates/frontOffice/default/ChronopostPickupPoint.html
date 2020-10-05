@@ -1,7 +1,3 @@
-{loop type="chronopost.pickup.point.get.relay" name="chronopost-relay" orderweight="1000" countryid="64" zipcode="69003" city="Lyon" address="7 rue de la rize"}
-{/loop}
-
-
 {loop type="delivery" name="chronopost-pickup-point" id=$module force_return="true"}
     <tr style="display: none;" id="deliverytype-chronopost-pickup-point-tr">
         <td colspan="3">
@@ -23,9 +19,42 @@
                                 <div style="padding-top: 15px;">
                                     {intl l="Delivery in a relay of your choice, before tomorrow 13H." d='chronopost.pickup.point.fo.default'}
 
-                                    <div class="clearfix">
-                                        <button type="submit" name="chronopost-pickup-point-delivery-mode" value="CHRONO13BAL" class="btn btn-primary pull-right">{intl l="Choose this delivery mode" d="chronopost.pickup.point.fo.default"}</button>
+                                    <div class="clearfix hidden">
+                                        <button type="submit" id='chronopostPickupPointSubmitButton' name="chronopost-pickup-point-delivery-mode" value="CHRONO13BAL" class="btn btn-primary pull-right">{intl l="Choose this delivery mode" d="chronopost.pickup.point.fo.default"}</button>
                                     </div>
+
+                                    <table class="table table-condensed table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>{intl l="Name" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th>{intl l="City" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th>{intl l="Zip Code" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th>{intl l="Address" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th>{intl l="Country" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {loop type="address" name="delivery-address" id={order attr="delivery_address"}}
+                                            {loop type="chronopost.pickup.point.get.relay" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
+                                                <tr>
+                                                    <td>{$NOM}</td>
+                                                    <td>{$LOCALITE}</td>
+                                                    <td>{$CODEPOSTAL}</td>
+                                                    <td>{$ADRESSE1}</td>
+                                                    <td>{$CODEPAYS}</td>
+                                                    <td>
+                                                        <div class="clearfix">
+                                                            <button type="button" class="btn btn-primary pull-right pickup-point-submit" data-company="{$NOM}" data-addr1="{$ADRESSE1}" data-addr2="{$ADRESSE2}" data-addr3="{$ADRESSE3}" data-zip="{$CODEPOSTAL}" data-country="{$CODEPAYS}" data-city="{$LOCALITE}">
+                                                                {intl l="Choose this pickup point" d="chronopost.pickup.point.fo.default"}
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {/loop}
+                                        {/loop}
+                                        </tbody>
+                                    </table>
                                 </div>
 
                             </div>
@@ -44,6 +73,7 @@
         function displayContentPickupPoint () {
             $("#deliverytype-chronopost-pickup-point-tr").show(function () {
                 $('.btn-checkout-next').hide();
+                $('#form-cart-delivery').find("> button").hide();
             });
         }
 
@@ -57,11 +87,26 @@
                 if($(this).attr('id') != 'delivery-method_{$module}') {
                     $("#deliverytype-chronopost-pickup-point-tr").hide();
                     $('.btn-checkout-next').show();
+                    $('#form-cart-delivery').find("> button").show();
                 } else {
                     displayContentPickupPoint();
                 }
             });
 
         });
+        
+        $(".pickup-point-submit").on("click", function () {
+            $.getJSON('{url path="/chronopost/pickup-point/save"}', {
+                company: this.dataset.company,
+                addr1: this.dataset.addr1,
+                addr2: this.dataset.addr2,
+                addr3: this.dataset.addr3,
+                zip: this.dataset.zip,
+                city: this.dataset.city,
+                country: this.dataset.country
+            }).done(function () {
+                $("#chronopostPickupPointSubmitButton").click();
+            })
+        })
     </script>
 {/loop}
