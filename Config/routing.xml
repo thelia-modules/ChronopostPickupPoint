@@ -42,7 +42,7 @@
     </route>
 
     <route id="chronopost.pickup.point.set.address" path="/chronopost/pickup-point/save">
-        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointRelayController::saveAddressAction</default>
+        <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointFrontController::saveAddressAction</default>
     </route>
 
 </routes>
