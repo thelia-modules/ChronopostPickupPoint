@@ -6,9 +6,9 @@
 
                     {chronopostPickupPointDeliveryType}
 
-                    {* Chrono13Bal *}
-                    {if $isChrono13BalEnabled !== false}
-                    {chronopostPickupPointDeliveryPrice delivery-mode="58" country=$country}
+                    {* ChronoRelais *}
+                    {if $isChronoRelaisEnabled !== false}
+                    {chronopostPickupPointDeliveryPrice delivery-mode="86" country=$country}
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <strong>{intl l="Chrono 13H relay delivery" d='chronopost.pickup.point.fo.default'}</strong> / {$chronopostPickupPointDeliveryModePrice} {currency attr="symbol"}
@@ -20,7 +20,7 @@
                                     {intl l="Delivery in a relay of your choice, before tomorrow 13H." d='chronopost.pickup.point.fo.default'}
 
                                     <div class="clearfix hidden">
-                                        <button type="submit" id='chronopostPickupPointSubmitButton' name="chronopost-pickup-point-delivery-mode" value="CHRONO13BAL" class="btn btn-primary pull-right">{intl l="Choose this delivery mode" d="chronopost.pickup.point.fo.default"}</button>
+                                        <button type="submit" id='chronopostPickupPointSubmitButton' name="chronopost-pickup-point-delivery-mode" value="86" class="btn btn-primary pull-right">{intl l="Choose this delivery mode" d="chronopost.pickup.point.fo.default"}</button>
                                     </div>
 
                                     <table class="table table-condensed table-striped">

@@ -103,7 +103,7 @@ class APIListener implements EventSubscriberInterface
             ->setZipCode($response->codePostal)
             ->setPhoneNumber('')
             ->setCellphoneNumber('')
-            ->setCompany('')
+            ->setCompany($response->nom)
             ->setCountryCode($response->codePays)
             ->setFirstName('')
             ->setLastName('')
