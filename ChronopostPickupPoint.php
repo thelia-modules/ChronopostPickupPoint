@@ -21,7 +21,9 @@ use PDO;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Propel;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Install\Database;
@@ -45,7 +47,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
     /**
      * @param ConnectionInterface|null $con
      */
-    public function postActivation(ConnectionInterface $con = null)
+    public function postActivation(ConnectionInterface $con = null): void
     {
         try {
             /** Security to not erase user configuration on reactivation */
@@ -186,10 +188,8 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
     {
         $deliveryMode = $request->get('chronopost-pickup-point-delivery-mode');
 
-        $deliveryCodes = array_change_key_case(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES, CASE_LOWER);
-
-        if ($deliveryMode) {
-            return $deliveryCodes[strtolower($deliveryMode)];
+        if (in_array($deliveryMode, ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES, true)) {
+            return $deliveryMode;
         }
 
         return null;
@@ -433,6 +433,14 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
         }
 
         return $areaArray;
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 
     public function getDeliveryMode()
