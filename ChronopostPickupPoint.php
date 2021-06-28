@@ -188,7 +188,13 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
     {
         $deliveryMode = $request->get('chronopost-pickup-point-delivery-mode');
 
-        if (in_array($deliveryMode, ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES, true)) {
+        $deliveryCodes = array_change_key_case(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES, CASE_LOWER);
+
+        if (array_key_exists(strtolower($deliveryMode),$deliveryCodes)) {
+            return $deliveryCodes[strtolower($deliveryMode)];
+        }
+
+        if(in_array($deliveryMode, ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES, true)){
             return $deliveryMode;
         }
 
