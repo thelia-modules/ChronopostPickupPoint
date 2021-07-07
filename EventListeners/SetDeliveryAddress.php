@@ -12,6 +12,7 @@ namespace ChronopostPickupPoint\EventListeners;
 use ChronopostPickupPoint\Model\ChronopostPickupPointOrderAddress;
 use ChronopostPickupPoint\Model\ChronopostPickupPointOrderAddressQuery;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\HttpFoundation\Request;
@@ -21,16 +22,16 @@ use Thelia\Model\OrderAddressQuery;
 
 class SetDeliveryAddress implements EventSubscriberInterface
 {
-    protected $request;
+    protected $requestStack;
 
-    public function __construct(Request $request)
+    public function __construct(RequestStack $requestStack)
     {
-        $this->request = $request;
+        $this->requestStack = $requestStack;
     }
 
     public function getRequest()
     {
-        return $this->request;
+        return $this->requestStack;
     }
 
     /**
@@ -40,7 +41,7 @@ class SetDeliveryAddress implements EventSubscriberInterface
     public function updateDeliveryAddress(OrderEvent $event)
     {
         if ($event->getOrder()->getDeliveryModuleId() === ModuleQuery::create()->filterByCode('ChronopostPickupPoint')->findOne()->getId()){
-            $request = $this->getRequest();
+            $request = $this->requestStack->getCurrentRequest();
 
             $tmp_address = ChronopostPickupPointOrderAddressQuery::create()
                 ->filterById($request->getSession()->get('ChronopostPickupPointId'))->findOne();

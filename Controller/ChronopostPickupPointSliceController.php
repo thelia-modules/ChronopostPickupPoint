@@ -7,15 +7,21 @@ use ChronopostPickupPoint\ChronopostPickupPoint;
 use ChronopostPickupPoint\Model\ChronopostPickupPointPrice;
 use ChronopostPickupPoint\Model\ChronopostPickupPointPriceQuery;
 use Propel\Runtime\Map\TableMap;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
+use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/admin/module/chronopost-pickup-point/slice", name="chronopost-pickup-point_slice")
+ */
 class ChronopostPickupPointSliceController extends BaseAdminController
 {
     /**
      * Save/Create a price slice in the delivery type being edited
      *
      * @return mixed|null|\Thelia\Core\HttpFoundation\Response
+     * @Route("/save", name="_save", methods="POST")
      */
     public function saveSliceAction()
     {
@@ -163,8 +169,9 @@ class ChronopostPickupPointSliceController extends BaseAdminController
      * Delete a price slice in the delivery type being edited
      *
      * @return mixed|null|\Thelia\Core\HttpFoundation\Response
+     * @Route("/delete", name="_delete", methods="POST")
      */
-    public function deleteSliceAction()
+    public function deleteSliceAction(RequestStack $requestStack)
     {
         $response = $this->checkAuth([], ['chronopost'], AccessManager::DELETE);
 
@@ -183,7 +190,11 @@ class ChronopostPickupPointSliceController extends BaseAdminController
         $response = null;
 
         try {
-            $requestData = $this->getRequest()->request;
+            $request = $requestStack->getCurrentRequest();
+            if (null === $request){
+                throw new \Exception('Request not found');
+            }
+            $requestData = $request->request;
 
             if (0 !== $id = (int)($requestData->get('id', 0))) {
                 $slice = ChronopostPickupPointPriceQuery::create()->findPk($id);

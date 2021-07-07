@@ -34,7 +34,9 @@
                     {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode"}
                     {$deliveryModeId=$ID}
                         <div id="prices_slices_tab_{$deliveryModeId}" class="tab-pane {if $tab eq "prices_slices_tab_$deliveryModeId" }active{/if} form-container">
-                            {if null !== $smarty.get.price_error && {$deliveryModeId} == $smarty.get.price_error_id}
+                            {$price_error = $smarty.get.price_error|default:null}
+                            {$price_error_id = $smarty.get.price_error_id|default:null}
+                            {if null !== $price_error && {$deliveryModeId} == $price_error_id}
                                 <div class="alert alert-danger" role="alert">{$smarty.get.price_error}</div>
                             {/if}
                             <br/>
