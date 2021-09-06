@@ -49,13 +49,12 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
      */
     public function postActivation(ConnectionInterface $con = null): void
     {
-        try {
-            /** Security to not erase user configuration on reactivation */
-            ChronopostPickupPointDeliveryModeQuery::create()->findOne();
-            ChronopostPickupPointAreaFreeshippingQuery::create()->findOne();
-        } catch (\Exception $e) {
-            $database = new Database($con->getWrappedConnection());
+        if (!$this->getConfigValue('is_initialized', false)) {
+            $database = new Database($con);
+
             $database->insertSql(null, array(__DIR__ . '/Config/thelia.sql'));
+
+            $this->setConfigValue('is_initialized', true);
         }
 
         /** Default config values */
