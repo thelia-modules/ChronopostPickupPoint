@@ -33,11 +33,13 @@ use Thelia\Model\CountryArea;
 use Thelia\Model\Message;
 use Thelia\Model\MessageQuery;
 use Thelia\Model\ModuleQuery;
-use Thelia\Module\AbstractDeliveryModule;
+use Thelia\Model\OrderPostage;
+use Thelia\Model\State;
+use Thelia\Module\AbstractDeliveryModuleWithState;
 use Thelia\Module\BaseModule;
 use Thelia\Module\Exception\DeliveryException;
 
-class ChronopostPickupPoint extends AbstractDeliveryModule
+class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
 {
     /** @var string */
     const DOMAIN_NAME = 'chronopostPickupPoint';
@@ -143,10 +145,11 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
      * and has correctly defined price slices
      *
      * @param Country $country
+     * @param State $state the state to deliver to.
      * @return bool
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function isValidDelivery(Country $country)
+    public function isValidDelivery(Country $country, State $state = null)
     {
         if (empty($this->getAllAreasForCountry($country))) {
             return false;
@@ -292,15 +295,21 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
     /**
      * Return the minimum postage price of a list of areas, for a given cart weight, price, and delivery type.
      *
-     * @param $areaIdArray
+     * @param $country
      * @param $cartWeight
      * @param $cartAmount
      * @param $deliveryType
-     * @return int|null
+     * @return OrderPostage
      */
-    public function getMinPostage($areaIdArray, $cartWeight, $cartAmount, $deliveryType)
+    public function getMinPostage($country, $cartWeight, $cartAmount, $deliveryType, $locale)
     {
         $minPostage = null;
+
+        /** Check what areas are covered in the shipping zones defined by the admin */
+        $areaIdArray = $this->getAllAreasForCountry($country);
+        if (empty($areaIdArray)) {
+            throw new DeliveryException("Your delivery country is not covered by Chronopost");
+        }
 
         foreach ($areaIdArray as $areaId) {
             try {
@@ -319,7 +328,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
             }
         }
 
-        return $minPostage;
+        return $this->buildOrderPostage($minPostage, $country, $locale);
     }
 
     /**
@@ -348,10 +357,11 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
      *
      * @param Country $country
      * @param null $deliveryType
+     * @param State $state the state to deliver to.
      * @return float|int|\Thelia\Model\OrderPostage
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function getPostage(Country $country)
+    public function getPostage(Country $country, State $state = null)
     {
         $request = $this->getRequest();
 
@@ -376,12 +386,6 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
             $deliveryArray = $this->getActivatedDeliveryTypes();
         }
 
-        /** Check what areas are covered in the shipping zones defined by the admin */
-        $areaIdArray = $this->getAllAreasForCountry($country);
-        if (empty($areaIdArray)) {
-            throw new DeliveryException("Your delivery country is not covered by Chronopost");
-        }
-
         $postage = null;
 
         /** If no delivery type was given, the loop should continue until the postage for each delivery types was
@@ -389,10 +393,10 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
          */
         if ($deliveryArray !== null) {
             $y = 0;
-            $postage = $this->getMinPostage($areaIdArray, $cartWeight, $cartAmount, $deliveryArray[$y]);
+            $postage = $this->getMinPostage($country, $cartWeight, $cartAmount, $deliveryArray[$y], $request->getSession()->getLang()->getLocale());
 
             while (isset($deliveryArray[$y]) && !empty($deliveryArray[$y]) && null !== $deliveryArray[$y]) {
-                if ($postage > ($minPost = $this->getMinPostage($areaIdArray, $cartWeight, $cartAmount, $deliveryArray[$y])) && $minPost !== null) {
+                if ($postage > ($minPost = $this->getMinPostage($country, $cartWeight, $cartAmount, $deliveryArray[$y], $request->getSession()->getLang()->getLocale())) && $minPost !== null) {
                     $postage = $minPost;
                 }
                 $y++;
@@ -411,7 +415,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
         //    $postage = 0.000001;
         //}
 
-        return (float)$postage;
+        return $postage;
     }
 
     /**

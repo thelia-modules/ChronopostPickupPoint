@@ -62,19 +62,12 @@ class ChronopostPickupPointDeliveryType extends AbstractSmartyPlugin
 
         try {
 
-            $countryAreas = $country->getCountryAreas();
-            $areasArray = [];
-
-            /** @var CountryArea $countryArea */
-            foreach ($countryAreas as $countryArea) {
-                $areasArray[] = $countryArea->getAreaId();
-            }
-
             $price = (new ChronopostPickupPoint)->getMinPostage(
-                $areasArray,
+                $country,
                 $cartWeight,
                 $cartAmount,
-                $deliveryMode
+                $deliveryMode,
+                $request->getSession()->getLang()->getLocale()
             );
 
             $consumedCouponsCodes = $request->getSession()->getConsumedCoupons();

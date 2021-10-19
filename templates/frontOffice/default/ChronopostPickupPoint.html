@@ -11,7 +11,7 @@
                     {chronopostPickupPointDeliveryPrice delivery-mode="86" country=$country}
                     <div class="panel panel-default">
                         <div class="panel-heading">
-                            <strong>{intl l="Chrono 13H relay delivery" d='chronopost.pickup.point.fo.default'}</strong> / {$chronopostPickupPointDeliveryModePrice} {currency attr="symbol"}
+                            <strong>{intl l="Chrono 13H relay delivery" d='chronopost.pickup.point.fo.default'}</strong> / {$chronopostPickupPointDeliveryModePrice->getAmount()} {currency attr="symbol"}
                         </div>
                         <div class="panel-body">
                             <div class="container-fluid">
@@ -94,7 +94,7 @@
             });
 
         });
-        
+
         $(".pickup-point-submit").on("click", function () {
             $.getJSON('{url path="/chronopost/pickup-point/save"}', {
                 company: this.dataset.company,
