@@ -198,14 +198,13 @@ class APIListener implements EventSubscriberInterface
             }
 
             $isValid = true;
-            $postage = null;
-            $postageTax = null;
+            $orderPostage = null;
 
             try {
                 $module = new ChronopostPickupPoint();
                 $country = $deliveryModuleOptionEvent->getCountry();
 
-                $postage = $module->getMinPostage(
+                $orderPostage = $module->getMinPostage(
                     $country,
                     $deliveryModuleOptionEvent->getCart()->getWeight(),
                     $deliveryModuleOptionEvent->getCart()->getTaxedAmount($country),
@@ -213,7 +212,6 @@ class APIListener implements EventSubscriberInterface
                     $this->requestStack->getCurrentRequest()->getSession()->getLang()->getLocale()
                 );
 
-                $postageTax = 0; //TODO
             } catch (\Exception $exception) {
                 $isValid = false;
             }
@@ -230,9 +228,9 @@ class APIListener implements EventSubscriberInterface
                 ->setImage('')
                 ->setMinimumDeliveryDate($minimumDeliveryDate)
                 ->setMaximumDeliveryDate($maximumDeliveryDate)
-                ->setPostage($postage)
-                ->setPostageTax($postageTax)
-                ->setPostageUntaxed($postage - $postageTax)
+                ->setPostage(($orderPostage) ? $orderPostage->getAmount() : 0)
+                ->setPostageTax(($orderPostage) ? $orderPostage->getAmountTax() : 0)
+                ->setPostageUntaxed(($orderPostage) ? $orderPostage->getAmount() - $orderPostage->getAmountTax() : 0)
             ;
 
             $deliveryModuleOptionEvent->appendDeliveryModuleOptions($deliveryModuleOption);
