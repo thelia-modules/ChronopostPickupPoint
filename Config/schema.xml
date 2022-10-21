@@ -23,6 +23,9 @@
         <column name="code" size="55" type="VARCHAR" required="true"/>
         <column name="freeshipping_active" type="BOOLEAN"/>
         <column name="freeshipping_from" type="FLOAT"/>
+        <behavior name="i18n">
+            <parameter name="i18n_columns" value="title" />
+        </behavior>
     </table>
 
     <table name="chronopost_pickup_point_price">
