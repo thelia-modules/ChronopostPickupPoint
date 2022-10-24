@@ -23,6 +23,7 @@ use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Propel;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
@@ -30,6 +31,8 @@ use Thelia\Install\Database;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\Country;
 use Thelia\Model\CountryArea;
+use Thelia\Model\Lang;
+use Thelia\Model\LangQuery;
 use Thelia\Model\Message;
 use Thelia\Model\MessageQuery;
 use Thelia\Model\ModuleQuery;
@@ -57,8 +60,10 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
             ChronopostPickupPointAreaFreeshippingQuery::create()->findOne();
         } catch (\Exception $e) {
             $database = new Database($con->getWrappedConnection());
-            $database->insertSql(null, array(__DIR__ . '/Config/thelia.sql'));
+            $database->insertSql(null, array(__DIR__ . '/Config/TheliaMain.sql'));
         }
+
+        $langs = LangQuery::create()->filterByActive(1)->find();
 
         /** Default config values */
         $defaultConfig = [
@@ -83,7 +88,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
          */
         foreach (ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES as $title => $code) {
             if (null === $this->isDeliveryTypeSet($code)) {
-                $this->setDeliveryType($code, $title);
+                $this->setDeliveryType($code, $title, $langs);
             }
         }
 
@@ -107,6 +112,33 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
         }
     }
 
+    public function update($currentVersion, $newVersion, ConnectionInterface $con = null):void
+    {
+        $sqlToExecute = [];
+        $finder = new Finder();
+        $sort = function (\SplFileInfo $a, \SplFileInfo $b) {
+            $a = strtolower(substr($a->getRelativePathname(), 0, -4));
+            $b = strtolower(substr($b->getRelativePathname(), 0, -4));
+            return version_compare($a, $b);
+        };
+
+        $files = $finder->name('*.sql')
+            ->in(__DIR__ . "/Config/Update/")
+            ->sort($sort);
+
+        foreach ($files as $file) {
+            if (version_compare($file->getFilename(), $currentVersion, ">")) {
+                $sqlToExecute[$file->getFilename()] = $file->getRealPath();
+            }
+        }
+
+        $database = new Database($con);
+
+        foreach ($sqlToExecute as $version => $sql) {
+            $database->insertSql(null, [$sql]);
+        }
+    }
+
     /**
      * Check if a given delivery type exists in the ChronopostPickupPointDeliveryMode table
      *
@@ -124,17 +156,24 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
      * @param $code
      * @param $title
      */
-    public function setDeliveryType($code, $title)
+    public function setDeliveryType($code, $title, $langs)
     {
         $newDeliveryType = new ChronopostPickupPointDeliveryMode();
 
         try {
             $newDeliveryType
                 ->setCode($code)
-                ->setTitle($title)
                 ->setFreeshippingActive(false)
                 ->setFreeshippingFrom(null)
                 ->save();
+
+            /** @var Lang $lang */
+            foreach ($langs as $lang) {
+                $newDeliveryType
+                    ->setLocale($lang->getLocale())
+                    ->setTitle($title)
+                    ->save();
+            }
         } catch (\Exception $e) {
 
         }

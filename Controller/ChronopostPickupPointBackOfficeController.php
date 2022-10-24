@@ -6,12 +6,16 @@ namespace ChronopostPickupPoint\Controller;
 use ChronopostPickupPoint\ChronopostPickupPoint;
 use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
 use ChronopostPickupPoint\Form\ChronopostPickupPointConfigurationForm;
+use ChronopostPickupPoint\Form\ChronopostPickupPointDeliveryModeForm;
+use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Core\Translation\Translator;
 use Symfony\Component\Routing\Annotation\Route;
+use Thelia\Model\LangQuery;
 
 /**
  * @Route("/admin/module/ChronopostPickupPoint", name="ChronopostPickupPoint")
@@ -112,5 +116,46 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
         }
 
         return $this->generateSuccessRedirect($form);
+    }
+
+    /**
+     * @Route("/delivery-mode", name="_delivery_mode", methods="POST")
+     */
+    public function updateDeliveryModeTitle(Request $request)
+    {
+        if (null !== $response = $this->checkAuth([AdminResources::MODULE], 'ChronopostHomeDelivery', AccessManager::UPDATE)) {
+            return $response;
+        }
+
+        $form = $this->createForm(ChronopostPickupPointDeliveryModeForm::getName());
+
+        try {
+            $data = $this->validateForm($form)->getData();
+
+            $deliveryMode = ChronopostPickupPointDeliveryModeQuery::create()->findPk($data['delivery_mode_id']);
+            $lang = $request->getSession()->get('thelia.admin.edition.lang');
+            if ($lang === null) {
+                $lang = LangQuery::create()->filterByByDefault(1)->findOne();
+            }
+
+            $deliveryMode
+                ->setLocale($lang->getLocale())
+                ->setTitle($data['delivery_mode_title'])
+                ->save();
+
+            return $this->generateSuccessRedirect($form);
+
+        } catch (\Exception $e) {
+            $this->setupFormErrorContext(
+                Translator::getInstance()->trans(
+                    "Error",
+                    [],
+                    ChronopostPickupPoint::DOMAIN_NAME
+                ),
+                $e->getMessage(),
+                $form
+            );
+            return $this->generateErrorRedirect($form);
+        }
     }
 }

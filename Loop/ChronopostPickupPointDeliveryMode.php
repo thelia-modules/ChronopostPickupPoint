@@ -13,6 +13,7 @@ use Thelia\Core\Template\Element\LoopResultRow;
 use Thelia\Core\Template\Element\PropelSearchLoopInterface;
 use Thelia\Core\Template\Loop\Argument\Argument;
 use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
+use Thelia\Model\LangQuery;
 
 class ChronopostPickupPointDeliveryMode extends BaseLoop implements PropelSearchLoopInterface
 {
@@ -21,7 +22,10 @@ class ChronopostPickupPointDeliveryMode extends BaseLoop implements PropelSearch
      */
     protected function getArgDefinitions()
     {
-        return new ArgumentCollection();
+        return new ArgumentCollection(
+            Argument::createAnyTypeArgument('lang_id'),
+            Argument::createBooleanTypeArgument('edit_i18n')
+        );
     }
 
     /**
@@ -48,12 +52,25 @@ class ChronopostPickupPointDeliveryMode extends BaseLoop implements PropelSearch
      */
     public function parseResults(LoopResult $loopResult)
     {
-        /** @var \ChronopostPickupPointPickupPoint\Model\ChronopostPickupPointDeliveryMode $mode */
+        $session = $this->getCurrentRequest()->getSession();
+
+        $lang = $session->get('thelia.current.lang');
+        if ($this->getBackendContext()) {
+            $lang = $session->get('thelia.current.admin_lang');
+        }
+        if (null !== $langId = $this->getLangId()){
+            $lang = LangQuery::create()->findPk($langId);
+        }
+        if ($this->getEditI18n()){
+            $lang = $session->get('thelia.admin.edition.lang');
+        }
+
+        /** @var \ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryMode $mode */
         foreach ($loopResult->getResultDataCollection() as $mode) {
             $loopResultRow = new LoopResultRow($mode);
             $loopResultRow
                 ->set("ID", $mode->getId())
-                ->set("TITLE", $mode->getTitle())
+                ->set("TITLE", $mode->setLocale($lang->getLocale())->getTitle())
                 ->set("CODE", $mode->getCode())
                 ->set("FREESHIPPING_ACTIVE", $mode->getFreeshippingActive())
                 ->set("FREESHIPPING_FROM", $mode->getFreeshippingFrom());
