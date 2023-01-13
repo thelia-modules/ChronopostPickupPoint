@@ -49,7 +49,7 @@ class ChronopostPickupPointAddPriceForm extends BaseForm
                     )
                 )
             ))
-            ->add("franco", "number", array())
+            ->add("franco", NumberType::class, array())
         ;
     }
 
