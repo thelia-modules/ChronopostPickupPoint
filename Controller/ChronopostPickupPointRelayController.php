@@ -6,9 +6,16 @@ namespace ChronopostPickupPoint\Controller;
 
 use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
 use Thelia\Controller\Admin\BaseAdminController;
+use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/admin/module/chronopost-pickup-point", name="chronopost-pickup-point")
+ */
 class ChronopostPickupPointRelayController extends BaseAdminController
 {
+    /**
+     * @Route("/coordinates", name="_coordinates", methods="POST")
+     */
     public function findByAddress($orderWeight, $address, $zipCode, $city, $countryCode)
     {
         $config = ChronopostPickupPointConst::getConfig();

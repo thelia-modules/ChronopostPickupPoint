@@ -8,6 +8,7 @@ use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
 use ChronopostPickupPoint\Model\ChronopostPickupPointOrder;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Core\Event\TheliaEvents;
 
@@ -16,15 +17,15 @@ use Thelia\Core\Event\TheliaEvents;
 class SetDeliveryType implements EventSubscriberInterface
 {
     /** @var Request */
-    protected $request;
+    protected $requestStack;
 
     /**
      * SetDeliveryType constructor.
-     * @param Request $request
+     * @param RequestStack $requestStack
      */
-    public function __construct(Request $request)
+    public function __construct(RequestStack $requestStack)
     {
-        $this->request = $request;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -32,7 +33,7 @@ class SetDeliveryType implements EventSubscriberInterface
      */
     public function getRequest()
     {
-        return $this->request;
+        return $this->requestStack->getCurrentRequest();
     }
 
     /**

@@ -17,7 +17,7 @@
 
                     <li class="{if $tab eq "configure"}active{/if}"><a data-toggle="tab" href="#configure">{intl l="Advanced configuration" d='chronopost.pickup.point.bo.default'}</a></li>
 
-                    {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode"}
+                    {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode" backend_context=1}
                         <li class="{if $tab eq "prices_slices_tab_{$ID}"}active{/if}"><a data-toggle="tab" href="#prices_slices_tab_{$ID}">{intl l="Price slices for \"%mode\"" d='chronopost.pickup.point.bo.default' mode={$TITLE}}</a></li>
                     {/loop}
 
@@ -31,10 +31,40 @@
                     </div>
 
 
-                    {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode"}
+                    {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode" edit_i18n=1}
                     {$deliveryModeId=$ID}
                         <div id="prices_slices_tab_{$deliveryModeId}" class="tab-pane {if $tab eq "prices_slices_tab_$deliveryModeId" }active{/if} form-container">
-                            {if null !== $smarty.get.price_error && {$deliveryModeId} == $smarty.get.price_error_id}
+                            {$price_error = $smarty.get.price_error|default:null}
+                            {$price_error_id = $smarty.get.price_error_id|default:null}
+
+                            <div class="col-md-12 row">
+                                {form name="chronopost_pickup_point_delivery_mode"}
+                                    <form action="{url path='/admin/module/ChronopostPickupPoint/delivery-mode'}" method="post">
+                                        {include
+                                        file      = "includes/inner-form-toolbar.html"
+                                        hide_flags = false
+                                        hide_save_and_close_button = true
+                                        page_url = {url path="/admin/module/ChronopostPickupPoint?current_tab=prices_slices_tab_$deliveryModeId"}
+                                        }
+                                        <div class="col-md-3 row">
+                                            {form_hidden_fields}
+                                            {form_field field="success_url"}
+                                                <input type="hidden" name="{$name}" value="{url path="/admin/module/ChronopostPickupPoint?current_tab=prices_slices_tab_$deliveryModeId"}">
+                                            {/form_field}
+                                            {form_field field="error_url"}
+                                                <input type="hidden" name="{$name}" value="{url path="/admin/module/ChronopostPickupPoint?current_tab=prices_slices_tab_$deliveryModeId"}">
+                                            {/form_field}
+                                            {form_field field="delivery_mode_id"}
+                                                <input type="hidden" name="{$name}" value="{$deliveryModeId}">
+                                            {/form_field}
+                                            {render_form_field field='delivery_mode_title' value=$TITLE}
+                                        </div>
+                                    </form>
+                                {/form}
+                            </div>
+
+
+                            {if null !== $price_error && {$deliveryModeId} == $price_error_id}
                                 <div class="alert alert-danger" role="alert">{$smarty.get.price_error}</div>
                             {/if}
                             <br/>

@@ -6,26 +6,31 @@ namespace ChronopostPickupPoint\EventListeners;
 
 use ChronopostPickupPoint\ChronopostPickupPoint;
 use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
+use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
 use OpenApi\Events\DeliveryModuleOptionEvent;
 use OpenApi\Events\OpenApiEvents;
 use OpenApi\Model\Api\DeliveryModuleOption;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use OpenApi\Model\Api\ModelFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Delivery\PickupLocationEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Translation\Translator;
 use Thelia\Model\CountryArea;
+use Thelia\Model\LangQuery;
 use Thelia\Model\PickupLocation;
 use Thelia\Model\PickupLocationAddress;
 use Thelia\Module\Exception\DeliveryException;
 
 class APIListener implements EventSubscriberInterface
 {
-    protected $container;
+    protected $modelFactory;
+    protected $requestStack;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(ModelFactory $modelFactory = null, RequestStack $requestStack)
     {
-        $this->container = $container;
+        $this->modelFactory = $modelFactory;
+        $this->requestStack = $requestStack;
     }
 
     /**
@@ -189,39 +194,29 @@ class APIListener implements EventSubscriberInterface
 
         $activatedDeliveryTypes = ChronopostPickupPoint::getActivatedDeliveryTypes();
 
-        foreach (ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES as $name => $code) {
-            if (!in_array($code, $activatedDeliveryTypes, false)) {
+        $deliveryModes = ChronopostPickupPointDeliveryModeQuery::create()->find();
+        $lang = $this->requestStack->getCurrentRequest()->getSession()->getLang();
+
+        foreach ($deliveryModes as $deliveryMode) {
+            if (!in_array($deliveryMode->getCode(), $activatedDeliveryTypes, false)) {
                 continue ;
             }
 
             $isValid = true;
-            $postage = null;
-            $postageTax = null;
+            $orderPostage = null;
 
             try {
                 $module = new ChronopostPickupPoint();
                 $country = $deliveryModuleOptionEvent->getCountry();
 
-                if (empty($module->getAllAreasForCountry($country))) {
-                    throw new DeliveryException(Translator::getInstance()->trans("Your delivery country is not covered by Chronopost"));
-                }
-
-                $countryAreas = $country->getCountryAreas();
-                $areasArray = [];
-
-                /** @var CountryArea $countryArea */
-                foreach ($countryAreas as $countryArea) {
-                    $areasArray[] = $countryArea->getAreaId();
-                }
-
-                $postage = $module->getMinPostage(
-                    $areasArray,
+                $orderPostage = $module->getMinPostage(
+                    $country,
                     $deliveryModuleOptionEvent->getCart()->getWeight(),
                     $deliveryModuleOptionEvent->getCart()->getTaxedAmount($country),
-                    $code
+                    $deliveryMode->getCode(),
+                    $lang->getLocale()
                 );
 
-                $postageTax = 0; //TODO
             } catch (\Exception $exception) {
                 $isValid = false;
             }
@@ -230,17 +225,17 @@ class APIListener implements EventSubscriberInterface
             $maximumDeliveryDate = ''; // TODO (with a const array code => timeToDeliver to calculate delivery date from day of order)
 
             /** @var DeliveryModuleOption $deliveryModuleOption */
-            $deliveryModuleOption = ($this->container->get('open_api.model.factory'))->buildModel('DeliveryModuleOption');
+            $deliveryModuleOption = $this->modelFactory->buildModel('DeliveryModuleOption');
             $deliveryModuleOption
-                ->setCode($code)
+                ->setCode($deliveryMode->getCode())
                 ->setValid($isValid)
-                ->setTitle($name)
+                ->setTitle($deliveryMode->setLocale($lang->getLocale())->getTitle())
                 ->setImage('')
                 ->setMinimumDeliveryDate($minimumDeliveryDate)
                 ->setMaximumDeliveryDate($maximumDeliveryDate)
-                ->setPostage($postage)
-                ->setPostageTax($postageTax)
-                ->setPostageUntaxed($postage - $postageTax)
+                ->setPostage(($orderPostage) ? $orderPostage->getAmount() : 0)
+                ->setPostageTax(($orderPostage) ? $orderPostage->getAmountTax() : 0)
+                ->setPostageUntaxed(($orderPostage) ? $orderPostage->getAmount() - $orderPostage->getAmountTax() : 0)
             ;
 
             $deliveryModuleOptionEvent->appendDeliveryModuleOptions($deliveryModuleOption);

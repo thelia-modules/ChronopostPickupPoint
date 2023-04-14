@@ -4,8 +4,12 @@ namespace ChronopostPickupPoint\Form;
 
 
 use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
+use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
+use Thelia\Model\LangQuery;
 
 class ChronopostPickupPointConfigurationForm extends BaseForm
 {
@@ -18,7 +22,7 @@ class ChronopostPickupPointConfigurationForm extends BaseForm
             /** Chronopost basic informations */
             ->add(
                 ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_CODE_CLIENT,
-                "text",
+                TextType::class,
                 [
                     'required'      => true,
                     'data'          => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_CODE_CLIENT],
@@ -32,7 +36,7 @@ class ChronopostPickupPointConfigurationForm extends BaseForm
                 ]
             )
             ->add(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD,
-                "text",
+                TextType::class,
                 [
                     'required'      => true,
                     'data'          => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD],
@@ -47,15 +51,26 @@ class ChronopostPickupPointConfigurationForm extends BaseForm
             )
         ;
 
+        $lang = $this->getRequest()->getSession()->get('thelia.current.admin_lang');
+        if (null === $lang) {
+            $lang = LangQuery::create()
+                ->filterByByDefault(1)
+                ->findOne();
+        }
+
         /** Delivery types */
         foreach (ChronopostPickupPointConst::getDeliveryTypesStatusKeys() as $deliveryTypeName => $statusKey) {
+            $deliveryMode = ChronopostPickupPointDeliveryModeQuery::create()
+                ->filterByCode(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES[$deliveryTypeName])
+                ->findOne();
+            $deliveryModeTitle = $deliveryMode ? $deliveryMode->setLocale($lang->getLocale())->getTitle() : $deliveryTypeName;
             $this->formBuilder
                 ->add($statusKey,
-                    "checkbox",
+                    CheckboxType::class,
                     [
                         'required'      => false,
                         'data'          => (bool)$config[$statusKey],
-                        'label'         => Translator::getInstance()->trans("\"" . $deliveryTypeName . "\" Delivery (Code : " . ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES[$deliveryTypeName] . ")"),
+                        'label'         => Translator::getInstance()->trans("\"" . $deliveryModeTitle . "\" Delivery (Code : " . ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES[$deliveryTypeName] . ")"),
                         'label_attr'    => [
                             'for'           => 'title',
                         ],
@@ -67,7 +82,7 @@ class ChronopostPickupPointConfigurationForm extends BaseForm
         /** BUILDFORM END */
     }
 
-    public function getName()
+    public static function getName()
     {
         return "chronopost_pickup_point_configuration_form";
     }

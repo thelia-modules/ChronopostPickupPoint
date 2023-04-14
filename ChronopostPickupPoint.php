@@ -21,21 +21,28 @@ use PDO;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Connection\ConnectionInterface;
 use Propel\Runtime\Propel;
+use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Install\Database;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\Country;
 use Thelia\Model\CountryArea;
+use Thelia\Model\Lang;
+use Thelia\Model\LangQuery;
 use Thelia\Model\Message;
 use Thelia\Model\MessageQuery;
 use Thelia\Model\ModuleQuery;
-use Thelia\Module\AbstractDeliveryModule;
+use Thelia\Model\OrderPostage;
+use Thelia\Model\State;
+use Thelia\Module\AbstractDeliveryModuleWithState;
 use Thelia\Module\BaseModule;
 use Thelia\Module\Exception\DeliveryException;
 
-class ChronopostPickupPoint extends AbstractDeliveryModule
+class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
 {
     /** @var string */
     const DOMAIN_NAME = 'chronopostPickupPoint';
@@ -45,7 +52,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
     /**
      * @param ConnectionInterface|null $con
      */
-    public function postActivation(ConnectionInterface $con = null)
+    public function postActivation(ConnectionInterface $con = null): void
     {
         try {
             /** Security to not erase user configuration on reactivation */
@@ -53,8 +60,10 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
             ChronopostPickupPointAreaFreeshippingQuery::create()->findOne();
         } catch (\Exception $e) {
             $database = new Database($con->getWrappedConnection());
-            $database->insertSql(null, array(__DIR__ . '/Config/thelia.sql'));
+            $database->insertSql(null, array(__DIR__ . '/Config/TheliaMain.sql'));
         }
+
+        $langs = LangQuery::create()->filterByActive(1)->find();
 
         /** Default config values */
         $defaultConfig = [
@@ -79,7 +88,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
          */
         foreach (ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES as $title => $code) {
             if (null === $this->isDeliveryTypeSet($code)) {
-                $this->setDeliveryType($code, $title);
+                $this->setDeliveryType($code, $title, $langs);
             }
         }
 
@@ -103,6 +112,33 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
         }
     }
 
+    public function update($currentVersion, $newVersion, ConnectionInterface $con = null):void
+    {
+        $sqlToExecute = [];
+        $finder = new Finder();
+        $sort = function (\SplFileInfo $a, \SplFileInfo $b) {
+            $a = strtolower(substr($a->getRelativePathname(), 0, -4));
+            $b = strtolower(substr($b->getRelativePathname(), 0, -4));
+            return version_compare($a, $b);
+        };
+
+        $files = $finder->name('*.sql')
+            ->in(__DIR__ . "/Config/Update/")
+            ->sort($sort);
+
+        foreach ($files as $file) {
+            if (version_compare($file->getFilename(), $currentVersion, ">")) {
+                $sqlToExecute[$file->getFilename()] = $file->getRealPath();
+            }
+        }
+
+        $database = new Database($con);
+
+        foreach ($sqlToExecute as $version => $sql) {
+            $database->insertSql(null, [$sql]);
+        }
+    }
+
     /**
      * Check if a given delivery type exists in the ChronopostPickupPointDeliveryMode table
      *
@@ -120,17 +156,24 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
      * @param $code
      * @param $title
      */
-    public function setDeliveryType($code, $title)
+    public function setDeliveryType($code, $title, $langs)
     {
         $newDeliveryType = new ChronopostPickupPointDeliveryMode();
 
         try {
             $newDeliveryType
                 ->setCode($code)
-                ->setTitle($title)
                 ->setFreeshippingActive(false)
                 ->setFreeshippingFrom(null)
                 ->save();
+
+            /** @var Lang $lang */
+            foreach ($langs as $lang) {
+                $newDeliveryType
+                    ->setLocale($lang->getLocale())
+                    ->setTitle($title)
+                    ->save();
+            }
         } catch (\Exception $e) {
 
         }
@@ -141,10 +184,11 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
      * and has correctly defined price slices
      *
      * @param Country $country
+     * @param State $state the state to deliver to.
      * @return bool
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function isValidDelivery(Country $country)
+    public function isValidDelivery(Country $country, State $state = null)
     {
         if (empty($this->getAllAreasForCountry($country))) {
             return false;
@@ -184,12 +228,16 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
      */
     public function getDeliveryType($request)
     {
-        $deliveryMode = $request->get('chronopost-pickup-point-delivery-mode');
+        $deliveryMode = $request->get('deliveryModuleOptionCode');
 
         $deliveryCodes = array_change_key_case(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES, CASE_LOWER);
 
-        if ($deliveryMode) {
+        if (array_key_exists(strtolower($deliveryMode),$deliveryCodes)) {
             return $deliveryCodes[strtolower($deliveryMode)];
+        }
+
+        if(in_array($deliveryMode, ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES, true)){
+            return $deliveryMode;
         }
 
         return null;
@@ -286,15 +334,21 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
     /**
      * Return the minimum postage price of a list of areas, for a given cart weight, price, and delivery type.
      *
-     * @param $areaIdArray
+     * @param $country
      * @param $cartWeight
      * @param $cartAmount
      * @param $deliveryType
-     * @return int|null
+     * @return OrderPostage
      */
-    public function getMinPostage($areaIdArray, $cartWeight, $cartAmount, $deliveryType)
+    public function getMinPostage($country, $cartWeight, $cartAmount, $deliveryType, $locale)
     {
         $minPostage = null;
+
+        /** Check what areas are covered in the shipping zones defined by the admin */
+        $areaIdArray = $this->getAllAreasForCountry($country);
+        if (empty($areaIdArray)) {
+            throw new DeliveryException("Your delivery country is not covered by Chronopost");
+        }
 
         foreach ($areaIdArray as $areaId) {
             try {
@@ -313,7 +367,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
             }
         }
 
-        return $minPostage;
+        return $this->buildOrderPostage($minPostage, $country, $locale);
     }
 
     /**
@@ -342,10 +396,11 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
      *
      * @param Country $country
      * @param null $deliveryType
+     * @param State $state the state to deliver to.
      * @return float|int|\Thelia\Model\OrderPostage
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function getPostage(Country $country)
+    public function getPostage(Country $country, State $state = null)
     {
         $request = $this->getRequest();
 
@@ -370,12 +425,6 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
             $deliveryArray = $this->getActivatedDeliveryTypes();
         }
 
-        /** Check what areas are covered in the shipping zones defined by the admin */
-        $areaIdArray = $this->getAllAreasForCountry($country);
-        if (empty($areaIdArray)) {
-            throw new DeliveryException("Your delivery country is not covered by Chronopost");
-        }
-
         $postage = null;
 
         /** If no delivery type was given, the loop should continue until the postage for each delivery types was
@@ -383,10 +432,10 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
          */
         if ($deliveryArray !== null) {
             $y = 0;
-            $postage = $this->getMinPostage($areaIdArray, $cartWeight, $cartAmount, $deliveryArray[$y]);
+            $postage = $this->getMinPostage($country, $cartWeight, $cartAmount, $deliveryArray[$y], $request->getSession()->getLang()->getLocale());
 
             while (isset($deliveryArray[$y]) && !empty($deliveryArray[$y]) && null !== $deliveryArray[$y]) {
-                if ($postage > ($minPost = $this->getMinPostage($areaIdArray, $cartWeight, $cartAmount, $deliveryArray[$y])) && $minPost !== null) {
+                if ($postage > ($minPost = $this->getMinPostage($country, $cartWeight, $cartAmount, $deliveryArray[$y], $request->getSession()->getLang()->getLocale())) && $minPost !== null) {
                     $postage = $minPost;
                 }
                 $y++;
@@ -405,7 +454,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
         //    $postage = 0.000001;
         //}
 
-        return (float)$postage;
+        return $postage;
     }
 
     /**
@@ -433,6 +482,14 @@ class ChronopostPickupPoint extends AbstractDeliveryModule
         }
 
         return $areaArray;
+    }
+
+    public static function configureServices(ServicesConfigurator $servicesConfigurator): void
+    {
+        $servicesConfigurator->load(self::getModuleCode().'\\', __DIR__)
+            ->exclude([THELIA_MODULE_DIR . ucfirst(self::getModuleCode()). "/I18n/*"])
+            ->autowire(true)
+            ->autoconfigure(true);
     }
 
     public function getDeliveryMode()

@@ -8,17 +8,23 @@ use ChronopostPickupPoint\Model\ChronopostPickupPointAreaFreeshipping;
 use ChronopostPickupPoint\Model\ChronopostPickupPointAreaFreeshippingQuery;
 use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Model\AreaQuery;
+use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @Route("/admin/module/chronopost-pickup-point", name="chronopost-pickup-point")
+ */
 class ChronopostPickupPointFreeShippingController extends BaseAdminController
 {
     /**
      * Toggle free shipping for the delivery type being edited.
      *
+     * @Route("/freeshipping", name="_freeshipping", methods="POST")
      * @return mixed|null|Response|static
      */
     public function toggleFreeShippingActivation()
@@ -27,7 +33,7 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
             return $response;
         }
 
-        $form = new ChronopostPickupPointFreeShippingForm($this->getRequest());
+        $form = $this->createForm(ChronopostPickupPointFreeShippingForm::getName());
         $response = null;
 
         try {
@@ -48,16 +54,23 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
     }
 
     /**
+     * @Route("/freeshipping_from", name="_freeshipping_from", methods="POST")
      * @return mixed|Response
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    public function setFreeShippingFrom()
+    public function setFreeShippingFrom(RequestStack $requestStack)
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ChronopostPickupPoint'), AccessManager::UPDATE)) {
             return $response;
         }
 
-        $data = $this->getRequest()->request;
+        $request = $requestStack->getCurrentRequest();
+        if (null === $request){
+            throw new \Exception('Request not found');
+        }
+
+
+        $data = $request->request;
         $deliveryMode = ChronopostPickupPointDeliveryModeQuery::create()->findOneById($data->get('delivery-mode'));
 
         $price = $data->get("price") === "" ? null : $data->get("price");
@@ -84,18 +97,21 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
     /**
      * Set free shipping for a given area of the delivery type being edited.
      *
+     * @Route("/area_freeshipping", name="_area_freeshipping", methods="POST")
      * @return mixed|null|Response
      */
-    public function setAreaFreeShipping()
+    public function setAreaFreeShipping(RequestStack $requestStack)
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ChronopostPickupPoint'), AccessManager::UPDATE)) {
             return $response;
         }
 
-        $data = $this->getRequest()->request;
-
         try {
-            $data = $this->getRequest()->request;
+            $request = $requestStack->getCurrentRequest();
+            if (null === $request){
+                throw new \Exception('Request not found');
+            }
+            $data = $request->request;
 
             $chronopostAreaId = $data->get('area-id');
             $chronopostDeliveryId = $data->get('delivery-mode');

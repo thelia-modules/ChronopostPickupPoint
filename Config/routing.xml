@@ -4,7 +4,7 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://symfony.com/schema/routing http://symfony.com/schema/routing/routing-1.0.xsd">
 
-    <route id="chronopost.pickup.point.config.save" path="/admin/module/ChronopostPickupPoint/config" methods="post">
+    <!--<route id="chronopost.pickup.point.config.save" path="/admin/module/ChronopostPickupPoint/config" methods="post">
         <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointBackOfficeController::saveAction</default>
     </route>
 
@@ -43,6 +43,6 @@
 
     <route id="chronopost.pickup.point.set.address" path="/chronopost/pickup-point/save">
         <default key="_controller">ChronopostPickupPoint\Controller\ChronopostPickupPointFrontController::saveAddressAction</default>
-    </route>
+    </route>-->
 
 </routes>
