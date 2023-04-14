@@ -11,7 +11,9 @@ class ChronopostPickupPointConst
 {
     /** Delivery types Name => Code */
     const CHRONOPOST_PICKUP_POINT_DELIVERY_CODES = [
-        "ChronoRelais"   => "86",
+        "ChronoRelais"          => "86",
+        "Chrono2ShopDirect"     => "5X",
+        "Chrono2ShopRetour"     => "5Y",
     ];
     /** @TODO Add other delivery types */
 
