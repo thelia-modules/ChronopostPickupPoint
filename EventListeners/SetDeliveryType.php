@@ -65,6 +65,12 @@ class SetDeliveryType implements EventSubscriberInterface
                         ->setDeliveryCode($code)
                     ;
                 }
+
+                if ($request->getSession()->get('pickup_address') !== null) {
+                    $idRelais = json_decode($request->getSession()->get('pickup_address'))->id;
+                    $chronopostOrder->setIdRelais($idRelais);
+                }
+
             }
 
             $chronopostOrder
