@@ -11,6 +11,7 @@
         <column name="delivery_code" type="LONGVARCHAR" />
         <column name="label_directory" type="LONGVARCHAR" />
         <column name="label_number" type="LONGVARCHAR" />
+        <column name="id_relais" type="VARCHAR" />
 
         <foreign-key foreignTable="order" name="fk_chronopost_pickup_point_order_order_id" onDelete="CASCADE" onUpdate="RESTRICT">
             <reference foreign="id" local="order_id" />

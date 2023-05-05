@@ -17,6 +17,7 @@ CREATE TABLE `chronopost_pickup_point_order`
     `delivery_code` TEXT,
     `label_directory` TEXT,
     `label_number` TEXT,
+    `id_relais` VARCHAR(255),
     PRIMARY KEY (`id`),
     INDEX `fi_chronopost_pickup_point_order_order_id` (`order_id`),
     CONSTRAINT `fk_chronopost_pickup_point_order_order_id`
