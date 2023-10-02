@@ -20,37 +20,36 @@ use ChronopostPickupPoint\Model\ChronopostPickupPointPriceQuery;
 use PDO;
 use Propel\Runtime\ActiveQuery\Criteria;
 use Propel\Runtime\Connection\ConnectionInterface;
+use Propel\Runtime\Exception\PropelException;
 use Propel\Runtime\Propel;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ServicesConfigurator;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\HttpFoundation\Session\Session;
 use Thelia\Install\Database;
-use Thelia\Model\ConfigQuery;
 use Thelia\Model\Country;
 use Thelia\Model\CountryArea;
 use Thelia\Model\Lang;
 use Thelia\Model\LangQuery;
 use Thelia\Model\Message;
 use Thelia\Model\MessageQuery;
-use Thelia\Model\ModuleQuery;
 use Thelia\Model\OrderPostage;
 use Thelia\Model\State;
 use Thelia\Module\AbstractDeliveryModuleWithState;
-use Thelia\Module\BaseModule;
 use Thelia\Module\Exception\DeliveryException;
 
 class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
 {
     /** @var string */
-    const DOMAIN_NAME = 'chronopostPickupPoint';
+    const DOMAIN_NAME = 'chronopostpickuppoint';
 
     const CHRONOPOST_CONFIRMATION_MESSAGE_NAME = 'chronopost_pickup_point_confirmation_message_name';
 
+    const CHRONOPOST_TAX_RULE_ID = 'chronopost_pickup_point_tax_rule_id';
+
     /**
      * @param ConnectionInterface|null $con
+     * @throws PropelException
      */
     public function postActivation(ConnectionInterface $con = null): void
     {
@@ -109,6 +108,10 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
 
                 ->save()
             ;
+        }
+
+        if (!self::getConfigValue(self::CHRONOPOST_TAX_RULE_ID)) {
+            self::setConfigValue(self::CHRONOPOST_TAX_RULE_ID, null);
         }
     }
 
@@ -367,7 +370,7 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
             }
         }
 
-        return $this->buildOrderPostage($minPostage, $country, $locale);
+        return $this->buildOrderPostage($minPostage, $country, $locale, self::getConfigValue(self::CHRONOPOST_TAX_RULE_ID));
     }
 
     /**
