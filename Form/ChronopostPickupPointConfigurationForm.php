@@ -6,6 +6,7 @@ namespace ChronopostPickupPoint\Form;
 use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
 use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
@@ -13,13 +14,13 @@ use Thelia\Model\LangQuery;
 
 class ChronopostPickupPointConfigurationForm extends BaseForm
 {
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $config = ChronopostPickupPointConst::getConfig();
 
         $this->formBuilder
 
-            /** Chronopost basic informations */
+            /** Chronopost basic information */
             ->add(
                 ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_CODE_CLIENT,
                 TextType::class,
@@ -36,7 +37,7 @@ class ChronopostPickupPointConfigurationForm extends BaseForm
                 ]
             )
             ->add(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD,
-                TextType::class,
+                PasswordType::class,
                 [
                     'required'      => true,
                     'data'          => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD],
@@ -79,10 +80,10 @@ class ChronopostPickupPointConfigurationForm extends BaseForm
             ;
         }
 
-        /** BUILDFORM END */
+        /** BUILD FORM END */
     }
 
-    public static function getName()
+    public static function getName(): string
     {
         return "chronopost_pickup_point_configuration_form";
     }
