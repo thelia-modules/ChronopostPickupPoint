@@ -15,12 +15,13 @@
 
                 <ul id="tabbed-menu" class="nav nav-tabs">
 
-                    <li class="{if $tab eq "configure"}active{/if}"><a data-toggle="tab" href="#configure">{intl l="Advanced configuration" d='chronopost.pickup.point.bo.default'}</a></li>
+                    <li class="{if $tab eq "configure"}active{/if}"><a data-toggle="tab" href="#configure">{intl l="Advanced configuration" d='chronopostpickuppoint.bo.default'}</a></li>
 
                     {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode" backend_context=1}
-                        <li class="{if $tab eq "prices_slices_tab_{$ID}"}active{/if}"><a data-toggle="tab" href="#prices_slices_tab_{$ID}">{intl l="Price slices for \"%mode\"" d='chronopost.pickup.point.bo.default' mode={$TITLE}}</a></li>
+                        <li class="{if $tab eq "prices_slices_tab_{$ID}"}active{/if}"><a data-toggle="tab" href="#prices_slices_tab_{$ID}">{intl l="Price slices for \"%mode\"" d='chronopostpickuppoint.bo.default' mode={$TITLE}}</a></li>
                     {/loop}
 
+                    <li class="{if $tab eq "tax_rule"}active{/if}"><a data-toggle="tab" href="#tax_rule">{intl l="Tax Rule" d='chronopostpickuppoint.bo.default'}</a> </li>
                 </ul>
 
 
@@ -135,7 +136,7 @@
                                                 <tr>
                                                     <th>
                                                         <label class="clearfix">
-                                                            <small>{intl d='chronopost.pickup.point.bo.default' l="Area : "}</small> {$NAME}
+                                                            <small>{intl d='chronopostpickuppoint.bo.default' l="Area : "}</small> {$NAME}
                                                         </label>
                                                     </th>
                                                     <th width="40%">
@@ -166,10 +167,10 @@
                                                 </thead>
                                                 <thead>
                                                 <tr>
-                                                    <th class="col-md-3">{intl l="Weight up to ... kg" d='chronopost.pickup.point.bo.default'}</th>
-                                                    <th class="col-md-3">{intl l="Untaxed Price up to ... %symbol" symbol=$currencySymbol d='chronopost.pickup.point.bo.default'}</th>
-                                                    <th class="col-md-5">{intl l="Price (%symbol)" symbol=$currencySymbol d='chronopost.pickup.point.bo.default'}</th>
-                                                    <th class="col-md-1">{intl l="Actions" d='chronopost.pickup.point.bo.default'}</th>
+                                                    <th class="col-md-3">{intl l="Weight up to ... kg" d='chronopostpickuppoint.bo.default'}</th>
+                                                    <th class="col-md-3">{intl l="Untaxed Price up to ... %symbol" symbol=$currencySymbol d='chronopostpickuppoint.bo.default'}</th>
+                                                    <th class="col-md-5">{intl l="Price (%symbol)" symbol=$currencySymbol d='chronopostpickuppoint.bo.default'}</th>
+                                                    <th class="col-md-1">{intl l="Actions" d='chronopostpickuppoint.bo.default'}</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -187,12 +188,12 @@
                                                         <th class="col-md-1">
                                                             <div class="btn-group">
                                                                 {loop type="auth" name="can_change" role="ADMIN" module="customdelivery" access="UPDATE"}
-                                                                    <a class="btn btn-default btn-xs js-slice-save" title="{intl d='chronopost.pickup.point.bo.default' l='Save this price slice'}">
+                                                                    <a class="btn btn-default btn-xs js-slice-save" title="{intl d='chronopostpickuppoint.bo.default' l='Save this price slice'}">
                                                                         <span class="glyphicon glyphicon-floppy-disk"></span>
                                                                     </a>
                                                                 {/loop}
                                                                 {loop type="auth" name="can_change" role="ADMIN" module="customdelivery" access="DELETE"}
-                                                                    <a class="btn btn-default btn-xs js-slice-delete" title="{intl d='chronopost.pickup.point.bo.default' l='Delete this price slice'}" data-id="{$ID}">
+                                                                    <a class="btn btn-default btn-xs js-slice-delete" title="{intl d='chronopostpickuppoint.bo.default' l='Delete this price slice'}" data-id="{$ID}">
                                                                         <span class="glyphicon glyphicon-trash"></span>
                                                                     </a>
                                                                 {/loop}
@@ -214,7 +215,7 @@
                                                             <input type="text" data-field="price" class="form-control js-slice-price" value="" />
                                                         </th>
                                                         <th class="col-md-1">
-                                                            <a class="btn btn-default btn-xs js-slice-add" title="{intl d='chronopost.pickup.point.bo.default' l='Add this price slice'}" >
+                                                            <a class="btn btn-default btn-xs js-slice-add" title="{intl d='chronopostpickuppoint.bo.default' l='Add this price slice'}" >
                                                                 <span class="glyphicon glyphicon-plus"></span>
                                                             </a>
                                                         </th>
@@ -229,9 +230,9 @@
                                 {elseloop rel="area_loop"}
                                     <div class="col-md-12">
                                         <div class="alert alert-warning">
-                                            {intl d='chronopost.pickup.point.bo.default' l="You should first attribute shipping zones to the modules: "}
+                                            {intl d='chronopostpickuppoint.bo.default' l="You should first attribute shipping zones to the modules: "}
                                             <a href="{url path="/admin/configuration/shipping_zones/update/$module_id"}">
-                                                {intl d='chronopost.pickup.point.bo.default' l="manage shipping zones"}
+                                                {intl d='chronopostpickuppoint.bo.default' l="manage shipping zones"}
                                             </a>
                                         </div>
                                     </div>
@@ -241,6 +242,25 @@
                         </div>
                     {/loop}
 
+                    <div id="tax_rule" class="tab-pane {if $tab eq "tax_rule"}active{/if} form-container">
+                        <br>
+
+                        <div class="title">
+                            {intl l="Chronopost Tax Rule configuration" d='chronopostpickuppoint.bo.default'}
+                        </div>
+
+                        {form name="chronopostpickuppoint_form_chronopost_pickup_point_tax_rule_form"}
+                            <form action="{url path="/admin/module/ChronopostPickupPoint/tax_rule/save"}" method="post" >
+                            {form_hidden_fields}
+
+                            {render_form_field field='tax_rule_id'}
+
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="submit">{intl l="Save"}</button>
+                                </span>
+                            </form>
+                        {/form}
+                    </div>
                 </div>
             </div>
         </div>
@@ -252,7 +272,7 @@
 
     dialog_id       = "chronopost_pickup_point_dialog"
     dialog_body     = ""
-    dialog_title    = {intl d='chronopost.pickup.point.bo.default' l="Message"}
+    dialog_title    = {intl d='chronopostpickuppoint.bo.default' l="Message"}
     }
 
     {* JS Templates *}
@@ -270,12 +290,12 @@
             <th class="col-md-1">
                 <div class="btn-group">
                     {loop type="auth" name="can_change" role="ADMIN" module="chronopost" access="UPDATE"}
-                        <a class="btn btn-default btn-xs js-slice-save" title="{intl d='chronopost.pickup.point.bo.default' l='Save this price slice'}">
+                        <a class="btn btn-default btn-xs js-slice-save" title="{intl d='chronopostpickuppoint.bo.default' l='Save this price slice'}">
                             <span class="glyphicon glyphicon-floppy-disk"></span>
                         </a>
                     {/loop}
                     {loop type="auth" name="can_change" role="ADMIN" module="chronopost" access="DELETE"}
-                        <a class="btn btn-default btn-xs js-slice-delete" title="{intl d='chronopost.pickup.point.bo.default' l='Delete this price slice'}" data-id="<%=id %>">
+                        <a class="btn btn-default btn-xs js-slice-delete" title="{intl d='chronopostpickuppoint.bo.default' l='Delete this price slice'}" data-id="<%=id %>">
                             <span class="glyphicon glyphicon-trash"></span>
                         </a>
                     {/loop}

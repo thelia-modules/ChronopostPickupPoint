@@ -24,7 +24,16 @@
 
                         {render_form_field field="chronopost_pickup_point_code"}
 
-                        {render_form_field field="chronopost_pickup_point_password"}
+                        <div class="form-group">
+                            {form_field field="chronopost_pickup_point_password"}
+
+                            <label for="{$name}" class="control-label">{$label}{if $required} <span class="required">*</span>{/if} : </label>
+                            <input type="password" id="mdp" name="{$name}" class="form-control" value="{$data}" placeholder="Your Chronopost password" aria-describedby="pwdHelpBlock">
+                            <button type="button" class="eye btn btn-primary btn-responsive" style="color:#FFF;background-color:#f6993c" onclick="togglePwd('mdp');">
+                                <i class="glyphicon glyphicon-eye-open"></i>
+                            </button>
+                            {/form_field}
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <b>{intl l="Allowed shipping modes"}</b>
@@ -39,3 +48,11 @@
         </form>
     {/form}
 </div>
+
+<script>
+    function togglePwd(id)
+    {
+        var x = document.getElementById(id);
+        x.type = (x.type === "password")? "text" : "password";
+    }
+</script>

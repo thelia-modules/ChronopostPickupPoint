@@ -24,7 +24,7 @@ NB1 : You need IDs provided by Chronopost to use this module.
 Add it in your main thelia composer.json file
 
 ```
-composer require thelia/chronopost-pickup-point-module:~1.0
+composer require thelia/chronopost-pickup-point-module:~2.0.0
 ```
 
 ## Usage

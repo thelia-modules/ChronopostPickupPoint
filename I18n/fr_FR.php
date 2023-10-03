@@ -1,4 +1,6 @@
 <?php
+
 return array(
-    // 'an english string' => 'La traduction française de la chaine',
+    'Default Tax rule' => 'Règles de taxes par défaut',
+    'Tax Rule' => 'Règles de taxes',
 );
