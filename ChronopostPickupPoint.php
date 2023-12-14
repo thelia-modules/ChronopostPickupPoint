@@ -140,6 +140,15 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
         foreach ($sqlToExecute as $version => $sql) {
             $database->insertSql(null, [$sql]);
         }
+
+        $langs = LangQuery::create()->filterByActive(1)->find();
+        // Add missing delivery types when updating
+        foreach (ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES as $title => $code) {
+            if (null === $this->isDeliveryTypeSet($code)) {
+                $this->setDeliveryType($code, $title, $langs);
+            }
+        }
+
     }
 
     /**
