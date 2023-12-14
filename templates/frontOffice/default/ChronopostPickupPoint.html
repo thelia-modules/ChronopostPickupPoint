@@ -201,6 +201,71 @@
                         </div>
                     {/if}
 
+                    {* Shop2ShopFrance *}
+                    {if $isShop2ShopFranceEnabled !== false}
+                        {chronopostPickupPointDeliveryPrice delivery-mode="5E" country=$country}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <strong>{intl l="Shop 2 Shop France delivery" d='chronopost.pickup.point.fo.default'}</strong> / {$chronopostPickupPointDeliveryModePrice->getAmount()} {currency attr="symbol"}
+                            </div>
+                            <div class="panel-body">
+                                <div class="container-fluid">
+
+                                    <div style="padding-top: 15px;">
+                                        {intl l="Delivery in a shop relay of your choice." d='chronopost.pickup.point.fo.default'}
+
+                                        <div class="clearfix hidden">
+                                            <button type="submit" id='chronopostPickupPointSubmitButton-5E' name="deliveryModuleOptionCode" value="5E" class="btn btn-primary pull-right">{intl l="Choose this delivery mode" d="chronopost.pickup.point.fo.default"}</button>
+                                        </div>
+
+                                        <table class="table table-condensed table-striped">
+                                            <thead>
+                                            <tr>
+                                                <th>{intl l="Name" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th>{intl l="City" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th>{intl l="Zip Code" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th>{intl l="Address" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th>{intl l="Country" d='chronopost.pickup.point.fo.default'}</th>
+                                                <th></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {loop type="address" name="delivery-address" id={order attr="delivery_address"}}
+                                            {loop type="chronopost.pickup.point.get.relay" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
+                                                <tr>
+                                                    <td>{$NOM}</td>
+                                                    <td>{$LOCALITE}</td>
+                                                    <td>{$CODEPOSTAL}</td>
+                                                    <td>{$ADRESSE1}</td>
+                                                    <td>{$CODEPAYS}</td>
+                                                    <td>
+                                                        <div class="clearfix">
+                                                            <button type="button" class="btn btn-primary pull-right pickup-point-submit"
+                                                                    data-company="{$NOM}"
+                                                                    data-addr1="{$ADRESSE1}"
+                                                                    data-addr2="{$ADRESSE2}"
+                                                                    data-addr3="{$ADRESSE3}"
+                                                                    data-zip="{$CODEPOSTAL}"
+                                                                    data-country="{$CODEPAYS}"
+                                                                    data-city="{$LOCALITE}"
+                                                                    data-deliverycode="5E"
+                                                            >
+                                                                {intl l="Choose this pickup point" d="chronopost.pickup.point.fo.default"}
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            {/loop}
+                                            {/loop}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+
                     {* TODO Add other delivery types *}
 
                 </div>

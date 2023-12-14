@@ -14,6 +14,8 @@ class ChronopostPickupPointConst
         "ChronoRelais"          => "86",
         "Chrono2ShopDirect"     => "5X",
         "Chrono2ShopRetour"     => "5Y",
+        "Shop2ShopFrance"       => "5E",
+        //"Shop2ShopEurope"       => "5h",
     ];
     /** @TODO Add other delivery types */
 
