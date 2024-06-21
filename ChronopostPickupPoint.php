@@ -226,6 +226,13 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
 
         /** Check if Chronopost delivers in the asked area */
         if (null !== $prices || null !== $freeShipping) {
+
+            try {
+                $this->getPostage($country, $state);
+            }catch (\Exception $exception){
+                return false;
+            }
+
             return true;
         }
 
