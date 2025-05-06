@@ -13,6 +13,7 @@ class ChronopostPickupPointConst
     const CHRONOPOST_PICKUP_POINT_DELIVERY_CODES = [
         "ChronoRelais"          => "86",
         "Chrono2ShopDirect"     => "5X",
+        "Chrono2ShopEurope"     => "6B",
         "Chrono2ShopRetour"     => "5Y",
         "Shop2ShopFrance"       => "5E",
         //"Shop2ShopEurope"       => "5h",
