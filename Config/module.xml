@@ -15,14 +15,14 @@
         <language>en_US</language>
         <language>fr_FR</language>
     </languages>
-    <version>2.0.9</version>
+    <version>2.1.0</version>
     <authors>
         <author>
             <name>Thelia</name>
             <email>info@thelia.net</email>
         </author>
     </authors>
-    <type>classic</type>
+    <type>delivery</type>
     <thelia>2.5.0</thelia>
     <stability>other</stability>
     <mandatory>0</mandatory>
