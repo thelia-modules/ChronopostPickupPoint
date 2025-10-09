@@ -17,7 +17,7 @@
 
                     <li class="{if $tab eq "configure"}active{/if}"><a data-toggle="tab" href="#configure">{intl l="Advanced configuration" d='chronopostpickuppoint.bo.default'}</a></li>
 
-                    {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode" backend_context=1}
+                    {loop type="chronopost_pickup_point_delivery_mode" name="delivery_mode" backend_context=1}
                         <li class="{if $tab eq "prices_slices_tab_{$ID}"}active{/if}"><a data-toggle="tab" href="#prices_slices_tab_{$ID}">{intl l="Price slices for \"%mode\"" d='chronopostpickuppoint.bo.default' mode={$TITLE}}</a></li>
                     {/loop}
 
@@ -31,8 +31,7 @@
                         {include file = "ChronopostPickupPoint/ChronopostPickupPointAdvancedConfig.html"}
                     </div>
 
-
-                    {loop type="chronopost.pickup.point.delivery.mode" name="delivery_mode" edit_i18n=1}
+                    {loop type="chronopost_pickup_point_delivery_mode" name="delivery_mode" edit_i18n=1}
                     {$deliveryModeId=$ID}
                         <div id="prices_slices_tab_{$deliveryModeId}" class="tab-pane {if $tab eq "prices_slices_tab_$deliveryModeId" }active{/if} form-container">
                             {$price_error = $smarty.get.price_error|default:null}
@@ -126,7 +125,7 @@
 
                                 {loop type="module" name="module-id-loop" code="ChronopostPickupPoint"}
                                     {assign var="module_id" value=$ID}
-                                {/loop}
+                                {/loop}dsdsdssddssdddsddsdsds
                                 {loop type="area" name="area_loop" module_id=$module_id backend_context=true}
                                 {$area_id=$ID}
                                     <div class="col-md-12">
@@ -148,7 +147,7 @@
                                                                     <input type="hidden" name="delivery-mode" value="{$deliveryModeId}">
 
                                                                     {ifloop rel="area_freeshipping"}
-                                                                    {loop type="chronopost.pickup.point.area.freeshipping" name="area_freeshipping" area_id=$area_id delivery_mode_id=$deliveryModeId}
+                                                                    {loop type="chronopost_pickup_point_area_freeshipping_loop" name="area_freeshipping" area_id=$area_id delivery_mode_id=$deliveryModeId}
                                                                         <input type="number" step="0.01" name="cart-amount" class="form-control" value="{$CART_AMOUNT}">
                                                                     {/loop}
                                                                     {/ifloop}
@@ -174,7 +173,7 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                {loop type="chronopost.pickup.point" name="chronopost_pickup_point_area_$ID" area_id={$area_id} delivery_mode_id={$deliveryModeId} }
+                                                {loop type="chronopost_pickup_point_loop" name="chronopost_pickup_point_area_$ID" area_id={$area_id} delivery_mode_id={$deliveryModeId} }
                                                     <tr class="js-slice" data-area="{$area_id}" data-id="{$SLICE_ID}" data-delivmode="{$deliveryModeId}">
                                                         <th class="col-md-3">
                                                             <input type="text" data-field="weight-max" class="form-control js-slice-weight-max" value="{$MAX_WEIGHT}" data-old="{$MAX_WEIGHT}" />

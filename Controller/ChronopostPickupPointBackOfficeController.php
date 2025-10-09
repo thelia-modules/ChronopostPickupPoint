@@ -10,6 +10,7 @@ use ChronopostPickupPoint\Form\ChronopostPickupPointDeliveryModeForm;
 use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
@@ -26,7 +27,7 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
      * Render the module config page
      *
      * @Route("/config", name="_config", methods="POST")
-     * @return \Thelia\Core\HttpFoundation\Response
+     * @return Response
      */
     /*public function viewAction($tab)
     {
@@ -78,7 +79,7 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
     /**
      * Save configuration form - Chronopost informations
      *
-     * @return mixed|null|\Symfony\Component\HttpFoundation\Response|\Thelia\Core\HttpFoundation\Response
+     * @return mixed|null|\Symfony\Component\HttpFoundation\Response
      * @Route("/config", name="_config", methods="POST")
      */
     public function saveAction()

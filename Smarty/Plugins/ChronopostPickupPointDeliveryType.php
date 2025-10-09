@@ -2,14 +2,11 @@
 
 namespace ChronopostPickupPoint\Smarty\Plugins;
 
-
 use ChronopostPickupPoint\ChronopostPickupPoint;
 use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Thelia\Core\HttpFoundation\Request;
-use Thelia\Model\CountryArea;
 use Thelia\Model\CountryQuery;
 use Thelia\Model\Coupon;
 use Thelia\Model\CouponQuery;
@@ -19,25 +16,14 @@ use TheliaSmarty\Template\SmartyPluginDescriptor;
 
 class ChronopostPickupPointDeliveryType extends AbstractSmartyPlugin
 {
-    protected $requestStack;
-    protected $dispatcher;
-
-    /**
-     * ChronopostPickupPointDeliveryType constructor.
-     *
-     * @param Request $request
-     * @param EventDispatcherInterface|null $dispatcher
-     */
-    public function __construct(RequestStack $requestStack, EventDispatcherInterface $dispatcher = null)
+    public function __construct(protected RequestStack $requestStack, protected EventDispatcherInterface $dispatcher)
     {
-        $this->requestStack = $requestStack;
-        $this->dispatcher = $dispatcher;
     }
 
     /**
-     * @return array|SmartyPluginDescriptor[]
+     * @return SmartyPluginDescriptor[]
      */
-    public function getPluginDescriptors()
+    public function getPluginDescriptors(): array
     {
         return array(
             new SmartyPluginDescriptor("function", "chronopostPickupPointDeliveryType", $this, "chronopostPickupPointDeliveryType"),
@@ -47,11 +33,9 @@ class ChronopostPickupPointDeliveryType extends AbstractSmartyPlugin
     }
 
     /**
-     * @param $params
-     * @param $smarty
      * @throws PropelException
      */
-    public function chronopostPickupPointDeliveryPrice($params, $smarty)
+    public function chronopostPickupPointDeliveryPrice($params, $smarty): void
     {
         $deliveryMode = $params["delivery-mode"];
         $country = CountryQuery::create()->findOneById($params["country"]);
@@ -93,24 +77,15 @@ class ChronopostPickupPointDeliveryType extends AbstractSmartyPlugin
 
     }
 
-    /**
-     * @param $params
-     * @param $smarty
-     */
-    public function chronopostPickupPointDeliveryType($params, $smarty)
+    public function chronopostPickupPointDeliveryType($params, $smarty): void
     {
         foreach (ChronopostPickupPointConst::getDeliveryTypesStatusKeys() as $deliveryTypeName => $statusKey) {
             $smarty->assign('is' . $deliveryTypeName . 'Enabled', (bool)ChronopostPickupPoint::getConfigValue($statusKey));
         }
     }
 
-    /**
-     * @param $params
-     * @param $smarty
-     */
-    public function chronopostPickupPointGetDeliveryTypesStatusKeys($params, $smarty)
+    public function chronopostPickupPointGetDeliveryTypesStatusKeys($params, $smarty): void
     {
         $smarty->assign('chronopostPickupPointDeliveryTypesStatusKeys', ChronopostPickupPointConst::getDeliveryTypesStatusKeys());
     }
-
 }

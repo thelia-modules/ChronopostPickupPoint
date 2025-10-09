@@ -36,7 +36,7 @@
                                             </thead>
                                             <tbody>
                                             {loop type="address" name="delivery-address" id={order attr="delivery_address"}}
-                                            {loop type="chronopost.pickup.point.get.relay" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
+                                            {loop type="chronopost_pickup_point_get_relay_loop" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
                                                 <tr>
                                                     <td>{$NOM}</td>
                                                     <td>{$LOCALITE}</td>
@@ -101,7 +101,7 @@
                                             </thead>
                                             <tbody>
                                             {loop type="address" name="delivery-address" id={order attr="delivery_address"}}
-                                            {loop type="chronopost.pickup.point.get.relay" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
+                                            {loop type="chronopost_pickup_point_get_relay_loop" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
                                                 <tr>
                                                     <td>{$NOM}</td>
                                                     <td>{$LOCALITE}</td>
@@ -166,7 +166,7 @@
                                             </thead>
                                             <tbody>
                                             {loop type="address" name="delivery-address" id={order attr="delivery_address"}}
-                                            {loop type="chronopost.pickup.point.get.relay" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
+                                            {loop type="chronopost_pickup_point_get_relay_loop" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
                                                 <tr>
                                                     <td>{$NOM}</td>
                                                     <td>{$LOCALITE}</td>
@@ -231,7 +231,7 @@
                                             </thead>
                                             <tbody>
                                             {loop type="address" name="delivery-address" id={order attr="delivery_address"}}
-                                            {loop type="chronopost.pickup.point.get.relay" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
+                                            {loop type="chronopost_pickup_point_get_relay_loop" name="chronopost_pickup_point_relay_loop" orderweight="10000" countryid=$COUNTRY zipcode=$ZIPCODE city=$CITY address=$ADDRESS1}
                                                 <tr>
                                                     <td>{$NOM}</td>
                                                     <td>{$LOCALITE}</td>

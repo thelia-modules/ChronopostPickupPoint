@@ -2,28 +2,22 @@
 
 namespace ChronopostPickupPoint\Form;
 
-
-use ChronopostHomeDelivery\ChronopostHomeDelivery;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use ChronopostPickupPoint\ChronopostPickupPoint;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
-use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
 
 class ChronopostPickupPointDeliveryModeForm extends BaseForm
 {
-    /**
-     * @return null|void
-     */
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $this->formBuilder
             ->add(
                 "delivery_mode_title",
                 TextType::class,
                 [
-                    'label' => Translator::getInstance()->trans('Delivery mode title', [], ChronopostHomeDelivery::DOMAIN_NAME),
+                    'label' => Translator::getInstance()->trans('Delivery mode title', [], ChronopostPickupPoint::DOMAIN_NAME),
                     'label_attr' => [
                         'for' => 'delivery_mode_title'
                     ]
@@ -36,14 +30,8 @@ class ChronopostPickupPointDeliveryModeForm extends BaseForm
         ;
     }
 
-    /**
-     * The name of you form. This name must be unique
-     *
-     * @return string
-     */
-    public static function getName()
+    public static function getName(): string
     {
         return "chronopost_pickup_point_delivery_mode";
     }
-
 }

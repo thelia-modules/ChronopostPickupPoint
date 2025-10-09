@@ -6,6 +6,7 @@ namespace ChronopostPickupPoint\Controller;
 
 use ChronopostPickupPoint\Model\ChronopostPickupPointOrderAddress;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Thelia\Controller\Front\BaseFrontController;
 use Thelia\Model\CountryQuery;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,7 +18,7 @@ class ChronopostPickupPointFrontController extends BaseFrontController
 {
     /**
      * @Route("/save", name="_save_address", methods="GET")
-     * @return \Thelia\Core\HttpFoundation\Response
+     * @return Response
      * @throws \Propel\Runtime\Exception\PropelException
      */
     public function saveAddressAction(RequestStack $requestStack)

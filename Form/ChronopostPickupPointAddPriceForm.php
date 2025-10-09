@@ -14,7 +14,7 @@ use Thelia\Model\AreaQuery;
 
 class ChronopostPickupPointAddPriceForm extends BaseForm
 {
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $this->formBuilder
             ->add("area", IntegerType::class, array(
@@ -53,7 +53,7 @@ class ChronopostPickupPointAddPriceForm extends BaseForm
         ;
     }
 
-    public function verifyAreaExist($value, ExecutionContextInterface $context)
+    public function verifyAreaExist($value, ExecutionContextInterface $context): void
     {
         $area = AreaQuery::create()->findPk($value);
         if (null === $area) {
@@ -61,7 +61,7 @@ class ChronopostPickupPointAddPriceForm extends BaseForm
         }
     }
 
-    public function verifyDeliveryModeExist($value, ExecutionContextInterface $context)
+    public function verifyDeliveryModeExist($value, ExecutionContextInterface $context): void
     {
         $mode = ChronopostPickupPointDeliveryModeQuery::create()->findPk($value);
         if (null === $mode) {
@@ -69,7 +69,7 @@ class ChronopostPickupPointAddPriceForm extends BaseForm
         }
     }
 
-    public function verifyValidWeight($value, ExecutionContextInterface $context)
+    public function verifyValidWeight($value, ExecutionContextInterface $context): void
     {
         if (!preg_match("#^\d+\.?\d*$#", $value)) {
             $context->addViolation(Translator::getInstance()->trans("The weight value is not valid.", [], ChronopostPickupPoint::DOMAIN_NAME));
@@ -80,14 +80,14 @@ class ChronopostPickupPointAddPriceForm extends BaseForm
         }
     }
 
-    public function verifyValidPrice($value, ExecutionContextInterface $context)
+    public function verifyValidPrice($value, ExecutionContextInterface $context): void
     {
         if (!preg_match("#^\d+\.?\d*$#", $value)) {
             $context->addViolation(Translator::getInstance()->trans("The price value is not valid.", [], ChronopostPickupPoint::DOMAIN_NAME));
         }
     }
 
-    public static function getName()
+    public static function getName(): string
     {
         return "chronopost_pickup_point_price_create";
     }

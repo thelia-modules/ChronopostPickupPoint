@@ -1,16 +1,28 @@
 <?php
 
-namespace ChronopostPickupPoint\Controller;
+declare(strict_types=1);
 
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace ChronopostPickupPoint\Controller;
 
 use ChronopostPickupPoint\ChronopostPickupPoint;
 use ChronopostPickupPoint\Model\ChronopostPickupPointPrice;
 use ChronopostPickupPoint\Model\ChronopostPickupPointPriceQuery;
 use Propel\Runtime\Map\TableMap;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
-use Symfony\Component\Routing\Annotation\Route;
 
 /**
  * @Route("/admin/module/chronopost-pickup-point/slice", name="chronopost-pickup-point_slice")
@@ -18,9 +30,10 @@ use Symfony\Component\Routing\Annotation\Route;
 class ChronopostPickupPointSliceController extends BaseAdminController
 {
     /**
-     * Save/Create a price slice in the delivery type being edited
+     * Save/Create a price slice in the delivery type being edited.
      *
-     * @return mixed|null|\Thelia\Core\HttpFoundation\Response
+     * @return mixed|Response|null
+     *
      * @Route("/save", name="_save", methods="POST")
      */
     public function saveSliceAction()
@@ -34,9 +47,9 @@ class ChronopostPickupPointSliceController extends BaseAdminController
         $this->checkXmlHttpRequest();
 
         $responseData = [
-            "sucess"    => false,
-            "message"   => '',
-            "slice"     => null,
+            'sucess' => false,
+            'message' => '',
+            'slice' => null,
         ];
 
         $messages = [];
@@ -45,27 +58,27 @@ class ChronopostPickupPointSliceController extends BaseAdminController
         try {
             $requestData = $this->getRequest()->request;
 
-            if (0 !== $id = (int)($requestData->get('id', 0))) {
+            if (0 !== $id = (int) $requestData->get('id', 0)) {
                 $slice = ChronopostPickupPointPriceQuery::create()->findPk($id);
             } else {
                 $slice = new ChronopostPickupPointPrice();
             }
 
-            if (0 !== $areaId = (int)($requestData->get('area', 0))) {
+            if (0 !== $areaId = (int) $requestData->get('area', 0)) {
                 $slice->setAreaId($areaId);
             } else {
                 $messages[] = $this->getTranslator()->trans(
-                    "The area is not valid",
+                    'The area is not valid',
                     [],
                     ChronopostPickupPoint::DOMAIN_NAME
                 );
             }
 
-            if (0 !== $deliveryMode = (int)($requestData->get("deliveryModeId", 0))) {
+            if (0 !== $deliveryMode = (int) $requestData->get('deliveryModeId', 0)) {
                 $slice->setDeliveryModeId($deliveryMode);
             } else {
                 $messages[] = $this->getTranslator()->trans(
-                    "The delivery type is not valid",
+                    'The delivery type is not valid',
                     [],
                     ChronopostPickupPoint::DOMAIN_NAME
                 );
@@ -123,7 +136,7 @@ class ChronopostPickupPointSliceController extends BaseAdminController
                 );
             }
 
-            if (0 === count($messages)) {
+            if (0 === \count($messages)) {
                 $slice->save();
                 $messages[] = $this->getTranslator()->trans(
                     'Your slice has been saved',
@@ -134,7 +147,6 @@ class ChronopostPickupPointSliceController extends BaseAdminController
                 $responseData['success'] = true;
                 $responseData['slice'] = $slice->toArray(TableMap::TYPE_STUDLYPHPNAME);
             }
-
         } catch (\Exception $e) {
             $message[] = $e->getMessage();
         }
@@ -145,19 +157,19 @@ class ChronopostPickupPointSliceController extends BaseAdminController
     }
 
     /**
-     * @param $val
      * @param int $default
+     *
      * @return float|int|mixed
      */
     protected function getFloatVal($val, $default = -1)
     {
         if (preg_match("#^([0-9\.,]+)$#", $val, $match)) {
             $val = $match[0];
-            if (strstr($val, ",")) {
-                $val = str_replace(".", "", $val);
-                $val = str_replace(",", ".", $val);
+            if (strstr($val, ',')) {
+                $val = str_replace('.', '', $val);
+                $val = str_replace(',', '.', $val);
             }
-            $val = (float)($val);
+            $val = (float) $val;
 
             return $val;
         }
@@ -166,9 +178,10 @@ class ChronopostPickupPointSliceController extends BaseAdminController
     }
 
     /**
-     * Delete a price slice in the delivery type being edited
+     * Delete a price slice in the delivery type being edited.
      *
-     * @return mixed|null|\Thelia\Core\HttpFoundation\Response
+     * @return mixed|Response|null
+     *
      * @Route("/delete", name="_delete", methods="POST")
      */
     public function deleteSliceAction(RequestStack $requestStack)
@@ -182,21 +195,21 @@ class ChronopostPickupPointSliceController extends BaseAdminController
         $this->checkXmlHttpRequest();
 
         $responseData = [
-            "success" => false,
-            "message" => '',
-            "slice" => null
+            'success' => false,
+            'message' => '',
+            'slice' => null,
         ];
 
         $response = null;
 
         try {
             $request = $requestStack->getCurrentRequest();
-            if (null === $request){
+            if (null === $request) {
                 throw new \Exception('Request not found');
             }
             $requestData = $request->request;
 
-            if (0 !== $id = (int)($requestData->get('id', 0))) {
+            if (0 !== $id = (int) $requestData->get('id', 0)) {
                 $slice = ChronopostPickupPointPriceQuery::create()->findPk($id);
                 $slice->delete();
                 $responseData['success'] = true;
@@ -213,5 +226,4 @@ class ChronopostPickupPointSliceController extends BaseAdminController
 
         return $this->jsonResponse(json_encode($responseData));
     }
-
 }

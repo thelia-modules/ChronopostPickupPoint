@@ -2,7 +2,6 @@
 
 namespace ChronopostPickupPoint\Hook;
 
-
 use Thelia\Core\Event\Hook\HookRenderEvent;
 use Thelia\Core\Hook\BaseHook;
 

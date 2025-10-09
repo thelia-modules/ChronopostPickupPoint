@@ -4,13 +4,6 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
 
-    <loops>
-        <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointLoop" name="chronopost.pickup.point" />
-        <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointDeliveryMode" name="chronopost.pickup.point.delivery.mode" />
-        <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointAreaFreeshipping" name="chronopost.pickup.point.area.freeshipping" />
-        <loop class="ChronopostPickupPoint\Loop\ChronopostPickupPointGetRelay" name="chronopost.pickup.point.get.relay" />
-    </loops>
-
     <forms>
         <form name="chronopost_pickup_point_configuration_form" class="ChronopostPickupPoint\Form\ChronopostPickupPointConfigurationForm" />
         <form name="chronopost.pickup.point.freeshipping.form" class="ChronopostPickupPoint\Form\ChronopostPickupPointFreeShippingForm" />
@@ -49,7 +42,7 @@
             <tag name="hook.event_listener" event="module.config-js" type="back" method="onModuleConfigJs" />
         </hook>
         <hook id="chronopost.pickup.point.hook.front" class="ChronopostPickupPoint\Hook\FrontHook" scope="request">
-            <tag name="hook.event_listener" event="order-delivery.extra" />
+            <tag name="hook.event_listener" event="order-delivery.extra" type="front" method="onOrderDeliveryExtra"/>
         </hook>
     </hooks>
 

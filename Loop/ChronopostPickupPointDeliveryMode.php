@@ -3,7 +3,7 @@
 namespace ChronopostPickupPoint\Loop;
 
 
-use ChronopostPickupPoint\ChronopostPickupPoint;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
 use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
 use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
 use Propel\Runtime\ActiveQuery\Criteria;
@@ -17,10 +17,8 @@ use Thelia\Model\LangQuery;
 
 class ChronopostPickupPointDeliveryMode extends BaseLoop implements PropelSearchLoopInterface
 {
-    /**
-     * Unused
-     */
-    protected function getArgDefinitions()
+
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createAnyTypeArgument('lang_id'),
@@ -28,10 +26,7 @@ class ChronopostPickupPointDeliveryMode extends BaseLoop implements PropelSearch
         );
     }
 
-    /**
-     * @return ChronopostPickupPointDeliveryModeQuery|\Propel\Runtime\ActiveQuery\ModelCriteria
-     */
-    public function buildModelCriteria()
+    public function buildModelCriteria(): ModelCriteria
     {
         $config = ChronopostPickupPointConst::getConfig();
         $modes = ChronopostPickupPointDeliveryModeQuery::create();
@@ -46,11 +41,7 @@ class ChronopostPickupPointDeliveryMode extends BaseLoop implements PropelSearch
         return $modes;
     }
 
-    /**
-     * @param LoopResult $loopResult
-     * @return LoopResult
-     */
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         $session = $this->getCurrentRequest()->getSession();
 

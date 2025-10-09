@@ -3,6 +3,7 @@
 namespace ChronopostPickupPoint\Form;
 
 
+use ChronopostPickupPoint\ChronopostPickupPoint;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Thelia\Core\Translation\Translator;
@@ -10,10 +11,7 @@ use Thelia\Form\BaseForm;
 
 class ChronopostPickupPointFreeShippingForm extends BaseForm
 {
-    /**
-     * @return null|void
-     */
-    protected function buildForm()
+    protected function buildForm(): void
     {
         $this->formBuilder
             ->add(
@@ -24,20 +22,13 @@ class ChronopostPickupPointFreeShippingForm extends BaseForm
                 "freeshipping",
                 CheckboxType::class,
                 [
-                    'label'=>Translator::getInstance()->trans("Activate free shipping: ")
+                    'label' => Translator::getInstance()->trans("Activate free shipping: ", [], ChronopostPickupPoint::DOMAIN_NAME),
                 ]
-            )
-        ;
+            );
     }
 
-    /**
-     * The name of you form. This name must be unique
-     *
-     * @return string
-     */
-    public static function getName()
+    public static function getName(): string
     {
         return "chronopost_pickup_point_freeshipping";
     }
-
 }

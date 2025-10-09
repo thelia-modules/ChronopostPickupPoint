@@ -2,9 +2,9 @@
 
 namespace ChronopostPickupPoint\Loop;
 
-
 use ChronopostPickupPoint\Model\ChronopostPickupPointPrice;
 use ChronopostPickupPoint\Model\ChronopostPickupPointPriceQuery;
+use Propel\Runtime\ActiveQuery\ModelCriteria;
 use Thelia\Core\Template\Element\BaseLoop;
 use Thelia\Core\Template\Element\LoopResult;
 use Thelia\Core\Template\Element\LoopResultRow;
@@ -21,10 +21,7 @@ use Thelia\Core\Template\Loop\Argument\ArgumentCollection;
  */
 class ChronopostPickupPointLoop extends BaseLoop implements PropelSearchLoopInterface
 {
-    /**
-     * @return ArgumentCollection
-     */
-    protected function getArgDefinitions()
+    protected function getArgDefinitions(): ArgumentCollection
     {
         return new ArgumentCollection(
             Argument::createIntTypeArgument('area_id', null, true),
@@ -32,10 +29,7 @@ class ChronopostPickupPointLoop extends BaseLoop implements PropelSearchLoopInte
         );
     }
 
-    /**
-     * @return ChronopostPickupPointPriceQuery|\Propel\Runtime\ActiveQuery\ModelCriteria
-     */
-    public function buildModelCriteria()
+    public function buildModelCriteria(): ModelCriteria
     {
         $areaId = $this->getAreaId();
         $modeId = $this->getDeliveryModeId();
@@ -48,11 +42,7 @@ class ChronopostPickupPointLoop extends BaseLoop implements PropelSearchLoopInte
         return $areaPrices;
     }
 
-    /**
-     * @param LoopResult $loopResult
-     * @return LoopResult
-     */
-    public function parseResults(LoopResult $loopResult)
+    public function parseResults(LoopResult $loopResult): LoopResult
     {
         /** @var ChronopostPickupPointPrice $price */
         foreach ($loopResult->getResultDataCollection() as $price) {

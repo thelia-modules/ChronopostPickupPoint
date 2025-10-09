@@ -1,5 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
+/*
+ * This file is part of the Thelia package.
+ * http://www.thelia.net
+ *
+ * (c) OpenStudio <info@thelia.net>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 namespace ChronopostPickupPoint\Form;
 
 use ChronopostPickupPoint\ChronopostPickupPoint;
@@ -14,10 +26,10 @@ class ChronopostPickupPointTaxRuleForm extends BaseForm
     protected function buildForm(): void
     {
         $this->formBuilder
-            ->add("tax_rule_id",
+            ->add('tax_rule_id',
                 ChoiceType::class,
                 [
-                    'data' => (int)ChronopostPickupPoint::getConfigValue(ChronopostPickupPoint::CHRONOPOST_TAX_RULE_ID),
+                    'data' => (int) ChronopostPickupPoint::getConfigValue(ChronopostPickupPoint::CHRONOPOST_TAX_RULE_ID),
                     'choices' => $this->getTaxRules(),
                     'label' => Translator::getInstance()->trans('Tax Rule', [], ChronopostPickupPoint::DOMAIN_NAME),
                 ]
@@ -39,8 +51,7 @@ class ChronopostPickupPointTaxRuleForm extends BaseForm
 
         $res[Translator::getInstance()->trans('Default Tax rule', [], ChronopostPickupPoint::DOMAIN_NAME)] = null;
 
-        foreach ($taxRules as $taxRule)
-        {
+        foreach ($taxRules as $taxRule) {
             $res[$taxRule->getTitle()] = $taxRule->getId();
         }
 
