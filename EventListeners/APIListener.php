@@ -186,8 +186,8 @@ class APIListener implements EventSubscriberInterface
             ->setId($response->identifiant)
             ->setTitle($response->nom)
             ->setAddress($this->createPickupLocationAddressFromResponse($response))
-            ->setLatitude($response->coordGeolocalisationLatitude)
-            ->setLongitude($response->coordGeolocalisationLongitude)
+            ->setLatitude((float) $response->coordGeolocalisationLatitude)
+            ->setLongitude((float) $response->coordGeolocalisationLongitude)
             ->setModuleId(ChronopostPickupPoint::getModuleId())
         ;
 
@@ -235,6 +235,7 @@ class APIListener implements EventSubscriberInterface
         if (class_exists(DeliveryModuleOptionEvent::class)) {
             $listenedEvents[TheliaEvents::MODULE_DELIVERY_GET_OPTIONS] = ['getDeliveryModuleOptions', 129];
         }
+        $listenedEvents[TheliaEvents::MODULE_DELIVERY_GET_PICKUP_LOCATIONS] = ['getPickupLocations', 135];
 
         return $listenedEvents;
     }

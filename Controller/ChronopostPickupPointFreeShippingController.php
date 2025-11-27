@@ -45,9 +45,10 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
             $deliveryMode
                 ->setFreeshippingActive($freeshipping)
                 ->save();
-            $response = Response::create('');
+
+            $response =new Response('');
         } catch (\Exception $e) {
-            $response = JsonResponse::create(array("error" => $e->getMessage()), 500);
+            $response = new JsonResponse(["error" => $e->getMessage()],500);
         }
 
         return $response;
