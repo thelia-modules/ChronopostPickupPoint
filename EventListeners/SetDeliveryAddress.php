@@ -11,6 +11,7 @@ namespace ChronopostPickupPoint\EventListeners;
 
 use ChronopostPickupPoint\Model\ChronopostPickupPointOrderAddress;
 use ChronopostPickupPoint\Model\ChronopostPickupPointOrderAddressQuery;
+use ChronopostPickupPoint\Service\ChronopostPickupPointService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Thelia\Core\Event\Order\OrderEvent;
@@ -24,8 +25,10 @@ class SetDeliveryAddress implements EventSubscriberInterface
 {
     protected $requestStack;
 
-    public function __construct(RequestStack $requestStack)
-    {
+    public function __construct(
+        RequestStack $requestStack,
+        private ChronopostPickupPointService $chronopostPickupPointService
+    ) {
         $this->requestStack = $requestStack;
     }
 
@@ -42,10 +45,18 @@ class SetDeliveryAddress implements EventSubscriberInterface
     {
         if ($event->getOrder()->getDeliveryModuleId() === ModuleQuery::create()->filterByCode('ChronopostPickupPoint')->findOne()->getId()){
             $request = $this->requestStack->getCurrentRequest();
-
-            $tmp_address = ChronopostPickupPointOrderAddressQuery::create()
-                ->filterById($request->getSession()->get('ChronopostPickupPointId'))->findOne();
-
+            if (!$request->getSession()->has('pickup')) return;
+            $address = $request->getSession()->get('pickup')['address'];
+            $tmp_address = $this->chronopostPickupPointService->saveAddress(
+                company: $address['company'],
+                address1: $address['address1'],
+                address2: $address['address2'],
+                address3: $address['address3'],
+                countryIsoAlpha2: $address['countryCode'],
+                zipCode: $address['zipCode'],
+                city: $address['city'],
+            );
+            $request->getSession()->remove('pickup');
             if ($tmp_address){
                 $orderAddr = OrderAddressQuery::create()
                     ->filterById($event->getOrder()->getDeliveryOrderAddressId())
