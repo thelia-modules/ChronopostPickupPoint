@@ -20,12 +20,11 @@ use ChronopostPickupPoint\Model\ChronopostPickupPointPriceQuery;
 use Propel\Runtime\Map\TableMap;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 
 /**
- * @Route("/admin/module/chronopost-pickup-point/slice", name="chronopost-pickup-point_slice")
  */
 class ChronopostPickupPointSliceController extends BaseAdminController
 {
@@ -36,6 +35,7 @@ class ChronopostPickupPointSliceController extends BaseAdminController
      *
      * @Route("/save", name="_save", methods="POST")
      */
+    #[Route('/admin/module/chronopost-pickup-point/slice', name: 'chronopost-pickup-point_slice')]
     public function saveSliceAction()
     {
         $response = $this->checkAuth([], ['chronopost'], AccessManager::UPDATE);
@@ -182,8 +182,8 @@ class ChronopostPickupPointSliceController extends BaseAdminController
      *
      * @return mixed|Response|null
      *
-     * @Route("/delete", name="_delete", methods="POST")
      */
+    #[Route('/delete', name: '_delete', methods: ['POST'])]
     public function deleteSliceAction(RequestStack $requestStack)
     {
         $response = $this->checkAuth([], ['chronopost'], AccessManager::DELETE);

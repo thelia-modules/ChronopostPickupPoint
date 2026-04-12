@@ -9,10 +9,9 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Thelia\Controller\Front\BaseFrontController;
 use Thelia\Model\CountryQuery;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @Route("/chronopost/pickup-point", name="chronopost-pickup-point_front")
  */
 class ChronopostPickupPointFrontController extends BaseFrontController
 {
@@ -21,6 +20,7 @@ class ChronopostPickupPointFrontController extends BaseFrontController
      * @return Response
      * @throws \Propel\Runtime\Exception\PropelException
      */
+    #[Route('/chronopost/pickup-point', name: 'chronopost-pickup-point_front')]
     public function saveAddressAction(RequestStack $requestStack)
     {
         $request = $requestStack->getCurrentRequest();

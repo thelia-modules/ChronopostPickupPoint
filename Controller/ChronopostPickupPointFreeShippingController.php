@@ -14,10 +14,9 @@ use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
 use Thelia\Model\AreaQuery;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Attribute\Route;
 
 /**
- * @Route("/admin/module/chronopost-pickup-point", name="chronopost-pickup-point")
  */
 class ChronopostPickupPointFreeShippingController extends BaseAdminController
 {
@@ -27,6 +26,7 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
      * @Route("/freeshipping", name="_freeshipping", methods="POST")
      * @return mixed|null|Response|static
      */
+    #[Route('/admin/module/chronopost-pickup-point', name: 'chronopost-pickup-point')]
     public function toggleFreeShippingActivation()
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ChronopostPickupPoint'), AccessManager::UPDATE)) {
@@ -55,10 +55,10 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
     }
 
     /**
-     * @Route("/freeshipping_from", name="_freeshipping_from", methods="POST")
      * @return mixed|Response
      * @throws \Propel\Runtime\Exception\PropelException
      */
+    #[Route('/freeshipping_from', name: '_freeshipping_from', methods: ['POST'])]
     public function setFreeShippingFrom(RequestStack $requestStack)
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ChronopostPickupPoint'), AccessManager::UPDATE)) {
@@ -98,9 +98,9 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
     /**
      * Set free shipping for a given area of the delivery type being edited.
      *
-     * @Route("/area_freeshipping", name="_area_freeshipping", methods="POST")
      * @return mixed|null|Response
      */
+    #[Route('/area_freeshipping', name: '_area_freeshipping', methods: ['POST'])]
     public function setAreaFreeShipping(RequestStack $requestStack)
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ChronopostPickupPoint'), AccessManager::UPDATE)) {
