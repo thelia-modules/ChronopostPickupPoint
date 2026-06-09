@@ -20,15 +20,15 @@ use Thelia\Model\LangQuery;
 
 /**
  */
+#[Route('/admin/module/ChronopostPickupPoint', name: 'ChronopostPickupPoint')]
 class ChronopostPickupPointBackOfficeController extends BaseAdminController
 {
     /**
      * Render the module config page
      *
-     * @Route("/config", name="_config", methods="POST")
      * @return Response
      */
-    /*public function viewAction($tab)
+    public function viewAction(string $tab = 'configure')
     {
         return $this->render(
             'module-configure',
@@ -37,12 +37,11 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
                 'current_tab' => $tab,
             ]
         );
-    }*/
+    }
 
     /**
-     * @Route("/saveLabel", name="_saveLabel", methods="POST")
      */
-    #[Route('/admin/module/ChronopostPickupPoint', name: 'ChronopostPickupPoint')]
+    #[Route('/saveLabel', name: '_saveLabel')]
     public function saveLabel(RequestStack $requestStack)
     {
         if (null !== $response = $this->checkAuth([AdminResources::MODULE], 'ChronopostPickupPoint', AccessManager::UPDATE)) {

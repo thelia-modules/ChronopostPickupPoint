@@ -13,14 +13,14 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  */
+#[Route('/chronopost/pickup-point', name: 'chronopost-pickup-point_front')]
 class ChronopostPickupPointFrontController extends BaseFrontController
 {
     /**
-     * @Route("/save", name="_save_address", methods="GET")
      * @return Response
      * @throws \Propel\Runtime\Exception\PropelException
      */
-    #[Route('/chronopost/pickup-point', name: 'chronopost-pickup-point_front')]
+    #[Route('/save', name: '_save_address', methods: ['GET'])]
     public function saveAddressAction(RequestStack $requestStack)
     {
         $request = $requestStack->getCurrentRequest();

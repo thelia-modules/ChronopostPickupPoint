@@ -18,15 +18,15 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  */
+#[Route('/admin/module/chronopost-pickup-point', name: 'chronopost-pickup-point')]
 class ChronopostPickupPointFreeShippingController extends BaseAdminController
 {
     /**
      * Toggle free shipping for the delivery type being edited.
      *
-     * @Route("/freeshipping", name="_freeshipping", methods="POST")
      * @return mixed|null|Response|static
      */
-    #[Route('/admin/module/chronopost-pickup-point', name: 'chronopost-pickup-point')]
+    #[Route('/freeshipping', name: '_freeshipping', methods: ['POST'])]
     public function toggleFreeShippingActivation()
     {
         if (null !== $response = $this->checkAuth(array(AdminResources::MODULE), array('ChronopostPickupPoint'), AccessManager::UPDATE)) {
