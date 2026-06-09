@@ -10,12 +10,12 @@ use Symfony\Component\Routing\Attribute\Route;
 
 /**
  */
+#[Route('/admin/module/chronopost-pickup-point', name: 'chronopost-pickup-point')]
 class ChronopostPickupPointRelayController extends BaseAdminController
 {
     /**
-     * @Route("/coordinates", name="_coordinates", methods="POST")
      */
-    #[Route('/admin/module/chronopost-pickup-point', name: 'chronopost-pickup-point')]
+    #[Route('/coordinates', name: '_coordinates', methods: ['POST'])]
     public function findByAddress($orderWeight, $address, $zipCode, $city, $countryCode)
     {
         $config = ChronopostPickupPointConst::getConfig();

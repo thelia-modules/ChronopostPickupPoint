@@ -26,16 +26,15 @@ use Thelia\Core\Security\AccessManager;
 
 /**
  */
+#[Route('/admin/module/chronopost-pickup-point/slice', name: 'chronopost-pickup-point_slice')]
 class ChronopostPickupPointSliceController extends BaseAdminController
 {
     /**
      * Save/Create a price slice in the delivery type being edited.
      *
      * @return mixed|Response|null
-     *
-     * @Route("/save", name="_save", methods="POST")
      */
-    #[Route('/admin/module/chronopost-pickup-point/slice', name: 'chronopost-pickup-point_slice')]
+    #[Route('/save', name: '_save', methods: ['POST'])]
     public function saveSliceAction()
     {
         $response = $this->checkAuth([], ['chronopost'], AccessManager::UPDATE);
