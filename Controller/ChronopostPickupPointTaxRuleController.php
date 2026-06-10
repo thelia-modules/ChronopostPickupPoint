@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ChronopostPickupPoint\Controller;
 
 use ChronopostPickupPoint\ChronopostPickupPoint;

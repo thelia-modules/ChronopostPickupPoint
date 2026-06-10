@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace ChronopostPickupPoint\Controller;
 
 
@@ -53,8 +55,8 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
             throw new \Exception('Request not found');
         }
 
-        $labelNbr = $request->get("labelNbr");
-        $labelDir = $request->get("labelDir");
+        $labelNbr = $request->query->get("labelNbr");
+        $labelDir = $request->query->get("labelDir");
 
         $file = $labelDir .'/'. $labelNbr;
 

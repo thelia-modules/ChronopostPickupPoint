@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace ChronopostPickupPoint\Controller;
 
@@ -28,16 +29,16 @@ class ChronopostPickupPointFrontController extends BaseFrontController
             throw new \Exception('Request not found');
         }
         $addr = new ChronopostPickupPointOrderAddress();
-        $countryId = CountryQuery::create()->filterByIsoalpha2($this->getRequest()->get('country'))->findOne()->getId();
+        $countryId = CountryQuery::create()->filterByIsoalpha2($request->query->get('country'))->findOne()->getId();
 
         $addr
-            ->setCompany($request->get('company'))
-            ->setAddress1($request->get('addr1'))
-            ->setAddress2($request->get('addr2'))
-            ->setAddress3($request->get('addr3'))
+            ->setCompany($request->query->get('company'))
+            ->setAddress1($request->query->get('addr1'))
+            ->setAddress2($request->query->get('addr2'))
+            ->setAddress3($request->query->get('addr3'))
             ->setCountryId($countryId)
-            ->setZipCode($request->get('zip'))
-            ->setCity($request->get('city'))
+            ->setZipCode($request->query->get('zip'))
+            ->setCity($request->query->get('city'))
             ->save()
         ;
 
