@@ -78,6 +78,6 @@ class ChronopostPickupPointUpdatePriceForm extends BaseForm
 
     public static function getName(): string
     {
-        return "chronopost_pickup_point_price_create";
+        return "chronopost_pickup_point_price_update";
     }
 }

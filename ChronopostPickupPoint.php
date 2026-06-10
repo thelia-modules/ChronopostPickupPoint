@@ -244,7 +244,9 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
      */
     public function getDeliveryType(Request|Session $request): ?string
     {
-        $deliveryMode = $request->get('deliveryModuleOptionCode') ?? '';
+        $deliveryMode = $request instanceof Request
+            ? ($request->request->get('deliveryModuleOptionCode') ?? $request->query->get('deliveryModuleOptionCode') ?? '')
+            : ($request->get('deliveryModuleOptionCode') ?? '');
 
         $deliveryCodes = array_change_key_case(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES, \CASE_LOWER);
 
