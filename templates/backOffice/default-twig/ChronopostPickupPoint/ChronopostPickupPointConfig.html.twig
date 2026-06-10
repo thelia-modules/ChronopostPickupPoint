@@ -1,0 +1,228 @@
+{# Config hook fragment (module.configuration) — no {% extends %}, wrapped in a card #}
+{% set tab = app.request.query.get('current_tab', 'configure') %}
+{% set domain = 'chronopostpickuppoint.bo.default' %}
+
+<div class="card">
+    <div class="card-body">
+
+        <ul id="tabbed-menu" class="nav nav-tabs mb-3">
+            <li class="nav-item">
+                <a class="nav-link {{ tab == 'configure' ? 'active' }}" data-bs-toggle="tab" href="#configure">
+                    {{ 'Advanced configuration'|trans({}, domain) }}
+                </a>
+            </li>
+            {% for mode in delivery_modes %}
+                <li class="nav-item">
+                    <a class="nav-link {{ tab == 'prices_slices_tab_' ~ mode.id ? 'active' }}" data-bs-toggle="tab" href="#prices_slices_tab_{{ mode.id }}">
+                        {{ 'Price slices for "%mode"'|trans({'%mode': mode.title}, domain) }}
+                    </a>
+                </li>
+            {% endfor %}
+            <li class="nav-item">
+                <a class="nav-link {{ tab == 'tax_rule' ? 'active' }}" data-bs-toggle="tab" href="#tax_rule">
+                    {{ 'Tax Rule'|trans({}, domain) }}
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            {# ===== Advanced configuration tab ===== #}
+            <div id="configure" class="tab-pane {{ tab == 'configure' ? 'active' }}">
+                <form action="{{ path('ChronopostPickupPoint_config') }}" method="post">
+                    {{ form_widget(config_form._token) }}
+                    <input type="hidden" name="{{ config_form.vars.full_name }}[success_url]" value="/admin/module/ChronopostPickupPoint">
+
+                    <h4 class="mb-3">{{ 'Chronopost informations'|trans({}, domain) }}</h4>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <span class="card-title">{{ 'Service Configuration'|trans({}, domain) }}</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ form_row(config_form.chronopost_pickup_point_code) }}
+                                    {{ form_row(config_form.chronopost_pickup_point_password) }}
+                                </div>
+                                <div class="col-md-6">
+                                    <b>{{ 'Allowed shipping modes'|trans({}, domain) }}</b>
+                                    {% for statusKey in delivery_status_keys %}
+                                        {% if config_form.vars.children[statusKey] is defined %}
+                                            {{ form_row(attribute(config_form, statusKey)) }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> {{ 'Save'|trans({}, domain) }}
+                    </button>
+                </form>
+            </div>
+
+            {# ===== Per-delivery-mode price-slices tabs ===== #}
+            {% for mode in delivery_modes %}
+                <div id="prices_slices_tab_{{ mode.id }}" class="tab-pane {{ tab == 'prices_slices_tab_' ~ mode.id ? 'active' }}">
+
+                    {# Free shipping switch (FreeShippingForm — prefixed names) #}
+                    <div class="row mb-3">
+                        <div class="col-md-5">
+                            <div class="form-check form-switch"
+                                 data-cppp-freeshipping
+                                 data-action-url="{{ path('chronopost-pickup-point_freeshipping') }}"
+                                 data-mode="{{ mode.id }}"
+                                 data-token-name="{{ free_shipping_form.vars.full_name }}[_token]"
+                                 data-token-value="{{ free_shipping_form._token.vars.value }}"
+                                 data-mode-field="{{ free_shipping_form.vars.full_name }}[delivery_mode]"
+                                 data-checkbox-field="{{ free_shipping_form.vars.full_name }}[freeshipping]">
+                                <input class="form-check-input" type="checkbox" id="freeshipping-{{ mode.id }}" {{ mode.freeshipping_active ? 'checked' }}>
+                                <label class="form-check-label" for="freeshipping-{{ mode.id }}">
+                                    {{ 'Activate total free shipping'|trans({}, domain) }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7" id="freeshipping-from-{{ mode.id }}" {{ mode.freeshipping_active ? 'style="display:none;"' }}>
+                            <form action="{{ path('chronopost-pickup-point_freeshipping_from') }}" method="post">
+                                <div class="input-group">
+                                    <span class="input-group-text {{ mode.freeshipping_from ? 'alert-success' }}">
+                                        {{ 'Or activate free shipping from (€) :'|trans({}, domain) }}
+                                    </span>
+                                    <input type="hidden" name="delivery-mode" value="{{ mode.id }}">
+                                    <input type="number" name="price" class="form-control" value="{{ mode.freeshipping_from }}">
+                                    <button class="btn btn-secondary" type="submit">{{ 'Save'|trans({}, domain) }}</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        {{ 'You can create price slices by specifying a maximum cart weight and/or a maximum cart price.'|trans({}, domain) }}
+                        {{ 'The slices are ordered by maximum cart weight then by maximum cart price.'|trans({}, domain) }}
+                        {{ 'If a cart matches multiple slices, it will take the last slice following that order.'|trans({}, domain) }}
+                    </div>
+
+                    <div class="slices">
+                        {% for area in areas %}
+                            <div class="mb-4">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                        <tr>
+                                            <th>
+                                                <small>{{ 'Area : '|trans({}, domain) }}</small> {{ area.name }}
+                                            </th>
+                                            <th width="40%">
+                                                <div id="area-freeshipping-{{ area.id }}-{{ mode.id }}" {{ mode.freeshipping_active ? 'style="display:none;"' }}>
+                                                    <form action="{{ path('chronopost-pickup-point_area_freeshipping') }}" method="post">
+                                                        <div class="input-group">
+                                                            <span class="input-group-text {{ area.id ? 'alert-success' }}">
+                                                                {{ 'Activate free shipping from (€) :'|trans({}, domain) }}
+                                                            </span>
+                                                            <input type="hidden" name="area-id" value="{{ area.id }}">
+                                                            <input type="hidden" name="delivery-mode" value="{{ mode.id }}">
+                                                            <input type="number" step="0.01" name="cart-amount" class="form-control" value="{{ area.freeshipping[mode.id] ?? '' }}">
+                                                            <button class="btn btn-secondary" type="submit">{{ 'Save'|trans({}, domain) }}</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th class="col-md-3">{{ 'Weight up to ... kg'|trans({}, domain) }}</th>
+                                            <th class="col-md-3">{{ 'Untaxed Price up to ... %symbol'|trans({'%symbol': currency_symbol}, domain) }}</th>
+                                            <th class="col-md-5">{{ 'Price (%symbol)'|trans({'%symbol': currency_symbol}, domain) }}</th>
+                                            <th class="col-md-1">{{ 'Actions'|trans({}, domain) }}</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for slice in area.prices[mode.id] ?? [] %}
+                                            <tr class="js-slice" data-area="{{ area.id }}" data-id="{{ slice.slice_id }}" data-delivmode="{{ mode.id }}">
+                                                <th class="col-md-3"><input type="text" data-field="weight-max" class="form-control js-slice-weight-max" value="{{ slice.max_weight }}" data-old="{{ slice.max_weight }}"></th>
+                                                <th class="col-md-3"><input type="text" data-field="price-max" class="form-control js-slice-price-max" value="{{ slice.max_price }}" data-old="{{ slice.max_price }}"></th>
+                                                <th class="col-md-5"><input type="text" data-field="price" class="form-control js-slice-price" value="{{ slice.price }}" data-old="{{ slice.price }}"></th>
+                                                <th class="col-md-1">
+                                                    <div class="btn-group">
+                                                        {% if is_granted('UPDATE', {resource: 'admin.module', module: 'ChronopostPickupPoint'}) %}
+                                                            <a class="btn btn-secondary btn-sm js-slice-save" title="{{ 'Save this price slice'|trans({}, domain) }}"><i class="bi bi-save"></i></a>
+                                                        {% endif %}
+                                                        {% if is_granted('DELETE', {resource: 'admin.module', module: 'ChronopostPickupPoint'}) %}
+                                                            <a class="btn btn-secondary btn-sm js-slice-delete" title="{{ 'Delete this price slice'|trans({}, domain) }}" data-id="{{ slice.slice_id }}"><i class="bi bi-trash"></i></a>
+                                                        {% endif %}
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                        {% endfor %}
+
+                                        {% if is_granted('CREATE', {resource: 'admin.module', module: 'ChronopostPickupPoint'}) %}
+                                            <tr class="js-slice-new" data-area="{{ area.id }}" data-id="0" data-delivmode="{{ mode.id }}">
+                                                <th class="col-md-3"><input type="text" data-field="weight-max" class="form-control js-slice-weight-max" value=""></th>
+                                                <th class="col-md-3"><input type="text" data-field="price-max" class="form-control js-slice-price-max" value=""></th>
+                                                <th class="col-md-5"><input type="text" data-field="price" class="form-control js-slice-price" value=""></th>
+                                                <th class="col-md-1">
+                                                    <a class="btn btn-secondary btn-sm js-slice-add" title="{{ 'Add this price slice'|trans({}, domain) }}"><i class="bi bi-plus-lg"></i></a>
+                                                </th>
+                                            </tr>
+                                        {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-warning">
+                                {{ 'You should first attribute shipping zones to the modules: '|trans({}, domain) }}
+                                <a href="/admin/configuration/shipping_zones/update/{{ module_id }}">
+                                    {{ 'manage shipping zones'|trans({}, domain) }}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            {# ===== Tax rule tab ===== #}
+            <div id="tax_rule" class="tab-pane {{ tab == 'tax_rule' ? 'active' }}">
+                <h4 class="mb-3">{{ 'Chronopost Tax Rule configuration'|trans({}, domain) }}</h4>
+                <form action="{{ path('chronopost_pickup_point_tax_rule_save') }}" method="post">
+                    {{ form_widget(tax_rule_form._token) }}
+                    {{ form_row(tax_rule_form.tax_rule_id) }}
+                    <button class="btn btn-success" type="submit">
+                        <i class="bi bi-save"></i> {{ 'Save'|trans({}, domain) }}
+                    </button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{# Slice editor row template (cloned by JS) #}
+<template id="tpl-slice">
+    <tr class="js-slice">
+        <th class="col-md-3"><input type="text" data-field="weight-max" class="form-control js-slice-weight-max"></th>
+        <th class="col-md-3"><input type="text" data-field="price-max" class="form-control js-slice-price-max"></th>
+        <th class="col-md-5"><input type="text" data-field="price" class="form-control js-slice-price"></th>
+        <th class="col-md-1">
+            <div class="btn-group">
+                <a class="btn btn-secondary btn-sm js-slice-save" title="{{ 'Save this price slice'|trans({}, domain) }}"><i class="bi bi-save"></i></a>
+                <a class="btn btn-secondary btn-sm js-slice-delete" title="{{ 'Delete this price slice'|trans({}, domain) }}"><i class="bi bi-trash"></i></a>
+            </div>
+        </th>
+    </tr>
+</template>
+
+{# Message modal #}
+<div class="modal fade" id="chronopost_pickup_point_dialog" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ 'Message'|trans({}, domain) }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</div>

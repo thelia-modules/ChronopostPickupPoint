@@ -1,0 +1,136 @@
+{# module.config-js hook fragment — vanilla JS port (no jQuery / underscore / bootstrap-switch) #}
+<script>
+(function () {
+    'use strict';
+
+    var config = {
+        urlAdd: '{{ path('chronopost-pickup-point_slice_save') }}',
+        urlDelete: '{{ path('chronopost-pickup-point_slice_delete') }}'
+    };
+
+    function showMessage(message) {
+        var dialog = document.getElementById('chronopost_pickup_point_dialog');
+        if (!dialog) {
+            return;
+        }
+        dialog.querySelector('.modal-body').innerHTML = message;
+        bootstrap.Modal.getOrCreateInstance(dialog).show();
+    }
+
+    function getSliceData(row) {
+        return {
+            id: row.dataset.id,
+            area: row.dataset.area,
+            deliveryModeId: row.dataset.delivmode,
+            price: row.querySelector('.js-slice-price').value,
+            priceMax: row.querySelector('.js-slice-price-max').value,
+            weightMax: row.querySelector('.js-slice-weight-max').value
+        };
+    }
+
+    function buildRow(slice) {
+        var tpl = document.getElementById('tpl-slice');
+        var row = tpl.content.cloneNode(true).querySelector('tr');
+        row.dataset.area = slice.area;
+        row.dataset.id = slice.id;
+        row.dataset.delivmode = slice.deliveryModeId;
+        row.querySelector('.js-slice-weight-max').value = slice.weightMax || '';
+        row.querySelector('.js-slice-price-max').value = slice.priceMax || '';
+        row.querySelector('.js-slice-price').value = slice.price || '';
+        var del = row.querySelector('.js-slice-delete');
+        if (del) {
+            del.dataset.id = slice.id;
+        }
+        return row;
+    }
+
+    function postSlice(url, data) {
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            body: new URLSearchParams(data)
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // Free shipping switch
+        document.querySelectorAll('[data-cppp-freeshipping]').forEach(function (container) {
+            var checkbox = container.querySelector('input[type="checkbox"]');
+            if (!checkbox) {
+                return;
+            }
+            checkbox.addEventListener('change', function () {
+                var mode = container.dataset.mode;
+                var params = {};
+                params[container.dataset.tokenName] = container.dataset.tokenValue;
+                params[container.dataset.modeField] = mode;
+                params[container.dataset.checkboxField] = checkbox.checked ? '1' : '';
+
+                postSlice(container.dataset.actionUrl, params)
+                    .then(function () {
+                        var fromBlock = document.getElementById('freeshipping-from-' + mode);
+                        if (fromBlock) {
+                            fromBlock.style.display = checkbox.checked ? 'none' : '';
+                        }
+                    })
+                    .catch(function () {
+                        showMessage('An error occurred.');
+                    });
+            });
+        });
+
+        // Slice editor (event delegation on each .slices container)
+        document.querySelectorAll('.slices').forEach(function (slicesEl) {
+            slicesEl.addEventListener('click', function (event) {
+                var target = event.target.closest('.js-slice-add, .js-slice-save, .js-slice-delete');
+                if (!target) {
+                    return;
+                }
+
+                var row = target.closest('tr');
+                var data = getSliceData(row);
+
+                if (target.classList.contains('js-slice-delete')) {
+                    postSlice(config.urlDelete, data)
+                        .then(function (r) { return r.json(); })
+                        .then(function (json) {
+                            if (json.success) {
+                                row.remove();
+                            } else {
+                                showMessage(json.message);
+                            }
+                        })
+                        .catch(function () { showMessage('An error occurred.'); });
+                    return;
+                }
+
+                // add or save
+                postSlice(config.urlAdd, data)
+                    .then(function (r) { return r.json(); })
+                    .then(function (json) {
+                        if (!json.success) {
+                            showMessage(Array.isArray(json.message) ? json.message.join('<br>') : json.message);
+                            return;
+                        }
+                        var newRow = buildRow({
+                            area: data.area,
+                            id: json.slice.id,
+                            deliveryModeId: data.deliveryModeId,
+                            weightMax: json.slice.weightMax,
+                            priceMax: json.slice.priceMax,
+                            price: json.slice.price
+                        });
+                        row.parentNode.insertBefore(newRow, row);
+                        if (target.classList.contains('js-slice-add')) {
+                            row.querySelectorAll('input').forEach(function (i) { i.value = ''; });
+                        } else {
+                            row.remove();
+                        }
+                    })
+                    .catch(function () { showMessage('An error occurred.'); });
+            });
+        });
+    });
+})();
+</script>
