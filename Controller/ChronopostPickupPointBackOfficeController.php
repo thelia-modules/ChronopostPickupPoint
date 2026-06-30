@@ -10,6 +10,7 @@ use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
 use ChronopostPickupPoint\Form\ChronopostPickupPointConfigurationForm;
 use ChronopostPickupPoint\Form\ChronopostPickupPointDeliveryModeForm;
 use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -55,26 +56,25 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
             throw new \Exception('Request not found');
         }
 
-        $labelNbr = $request->query->get("labelNbr");
-        $labelDir = $request->query->get("labelDir");
+        $labelNbr = (string) $request->query->get('labelNbr');
+        $labelDir = (string) $request->query->get('labelDir');
 
-        $file = $labelDir .'/'. $labelNbr;
+        // Confine the resolved file under THELIA_LOCAL_DIR (where labels are stored) and strip any
+        // directory part from the file name, defeating path traversal / arbitrary file read.
+        $file = realpath($labelDir.DIRECTORY_SEPARATOR.basename($labelNbr));
+        $baseDir = realpath(THELIA_LOCAL_DIR);
 
-        if (file_exists($file)) {
-            header('Content-Description: File Transfer');
-            header('Content-Type: application/octet-stream');
-            header('Content-Disposition: attachment; filename="'.basename($file).'"');
-            header('Expires: 0');
-            header('Cache-Control: must-revalidate');
-            header('Pragma: public');
-            header('Content-Length: ' . filesize($file));
-            readfile($file);
-        } else {
-            return $this->viewAction('export');
-            // todo : Error message
+        if (false === $file || false === $baseDir || !str_starts_with($file, $baseDir.DIRECTORY_SEPARATOR)) {
+            return new Response(Translator::getInstance()->trans('Label not found'), Response::HTTP_NOT_FOUND);
         }
 
-        return $this->generateSuccessRedirect();
+        return new BinaryFileResponse(
+            $file,
+            200,
+            ['Content-Type' => 'application/octet-stream'],
+            false,
+            'attachment'
+        );
     }
 
     /**
