@@ -42,7 +42,9 @@ class ChronopostPickupPointFrontController extends BaseFrontController
             ->save()
         ;
 
-        $request->getSession()->set('ChronopostPickupPointId', $addr->getId());
+        if ($request->hasSession()) {
+            $request->getSession()->set('ChronopostPickupPointId', $addr->getId());
+        }
 
         return $this->jsonResponse($addr->getId(), 200);
     }

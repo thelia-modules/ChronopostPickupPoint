@@ -45,6 +45,7 @@ class SetDeliveryAddress implements EventSubscriberInterface
     {
         if ($event->getOrder()->getDeliveryModuleId() === ModuleQuery::create()->filterByCode('ChronopostPickupPoint')->findOne()->getId()){
             $request = $this->requestStack->getCurrentRequest();
+            if (null === $request || !$request->hasSession()) return;
             if (!$request->getSession()->has('pickup')) return;
             $address = $request->getSession()->get('pickup')['address'];
             $tmp_address = $this->chronopostPickupPointService->saveAddress(

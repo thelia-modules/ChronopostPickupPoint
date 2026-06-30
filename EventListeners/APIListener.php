@@ -26,6 +26,7 @@ use Thelia\Api\Resource\PickupLocationAddress;
 use Thelia\Core\Event\Delivery\PickupLocationEvent;
 use Thelia\Core\Event\TheliaEvents;
 use Thelia\Core\Translation\Translator;
+use Thelia\Model\LangQuery;
 
 class APIListener implements EventSubscriberInterface
 {
@@ -45,7 +46,10 @@ class APIListener implements EventSubscriberInterface
         $activatedDeliveryTypes = ChronopostPickupPoint::getActivatedDeliveryTypes();
 
         $deliveryModes = ChronopostPickupPointDeliveryModeQuery::create()->find();
-        $lang = $this->requestStack->getCurrentRequest()->getSession()->getLang();
+        $request = $this->requestStack->getCurrentRequest();
+        $lang = (null !== $request && $request->hasSession())
+            ? $request->getSession()->getLang()
+            : LangQuery::create()->filterByByDefault(1)->findOne();
 
         foreach ($deliveryModes as $deliveryMode) {
             if (!\in_array($deliveryMode->getCode(), $activatedDeliveryTypes, false)) {

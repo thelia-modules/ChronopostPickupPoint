@@ -19,6 +19,7 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Core\Translation\Translator;
 use Thelia\Form\BaseForm;
+use Thelia\Model\LangQuery;
 use Thelia\Model\TaxRuleI18nQuery;
 
 class ChronopostPickupPointTaxRuleForm extends BaseForm
@@ -43,7 +44,8 @@ class ChronopostPickupPointTaxRuleForm extends BaseForm
         /** @var Request $request */
         $request = $this->request;
 
-        $lang = $request->getSession()?->getAdminEditionLang();
+        $lang = $request->hasSession() ? $request->getSession()->getAdminEditionLang() : null;
+        $lang ??= LangQuery::create()->filterByByDefault(1)->findOne();
 
         $taxRules = TaxRuleI18nQuery::create()
             ->filterByLocale($lang->getLocale())

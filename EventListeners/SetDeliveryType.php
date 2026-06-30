@@ -54,6 +54,9 @@ class SetDeliveryType implements EventSubscriberInterface
         if ($this->checkModule($orderEvent->getOrder()->getDeliveryModuleId())) {
 
             $request = $this->getRequest();
+            if (null === $request || !$request->hasSession()) {
+                return;
+            }
             $chronopostOrder = new ChronopostPickupPointOrder();
 
             $orderId = $orderEvent->getOrder()->getId();
@@ -87,6 +90,9 @@ class SetDeliveryType implements EventSubscriberInterface
     {
         if ($this->checkModule($orderEvent->getDeliveryModule())) {
             $request = $this->getRequest();
+            if (null === $request || !$request->hasSession()) {
+                return null;
+            }
 
             $request->getSession()->set('ChronopostAddressId', $orderEvent->getDeliveryAddress());
             $request->getSession()->set('ChronopostPickupPointDeliveryType', $request->request->get('deliveryModuleOptionCode') ?? $request->query->get('deliveryModuleOptionCode'));

@@ -84,7 +84,7 @@ class BackHook extends BaseHook
     private function getEditionLocale(): string
     {
         $request = $this->getRequest();
-        $session = $request?->getSession();
+        $session = (null !== $request && $request->hasSession()) ? $request->getSession() : null;
 
         if ($session !== null) {
             $lang = $session->get('thelia.admin.edition.lang')

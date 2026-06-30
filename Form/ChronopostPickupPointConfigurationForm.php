@@ -63,7 +63,8 @@ class ChronopostPickupPointConfigurationForm extends BaseForm
             )
         ;
 
-        $lang = $this->getRequest()->getSession()->get('thelia.current.admin_lang');
+        $request = $this->getRequest();
+        $lang = $request->hasSession() ? $request->getSession()->get('thelia.current.admin_lang') : null;
         if (null === $lang) {
             $lang = LangQuery::create()
                 ->filterByByDefault(1)
