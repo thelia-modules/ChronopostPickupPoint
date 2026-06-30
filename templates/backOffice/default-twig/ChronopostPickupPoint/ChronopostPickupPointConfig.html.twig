@@ -42,14 +42,14 @@
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
-                                    {{ form_row(config_form.chronopost_pickup_point_code) }}
-                                    {{ form_row(config_form.chronopost_pickup_point_password) }}
+                                    <div class="mb-3">{{ form_label(config_form.chronopost_pickup_point_code) }}{{ form_widget(config_form.chronopost_pickup_point_code, {attr: {class: 'form-control'}}) }}{{ form_errors(config_form.chronopost_pickup_point_code) }}</div>
+                                    <div class="mb-3">{{ form_label(config_form.chronopost_pickup_point_password) }}{{ form_widget(config_form.chronopost_pickup_point_password, {attr: {class: 'form-control'}}) }}{{ form_errors(config_form.chronopost_pickup_point_password) }}</div>
                                 </div>
                                 <div class="col-md-6">
                                     <b>{{ 'Allowed shipping modes'|trans({}, domain) }}</b>
                                     {% for statusKey in delivery_status_keys %}
                                         {% if config_form.vars.children[statusKey] is defined %}
-                                            {{ form_row(attribute(config_form, statusKey)) }}
+                                            <div class="form-check mb-3">{{ form_widget(attribute(config_form, statusKey), {attr: {class: 'form-check-input'}}) }}{{ form_label(attribute(config_form, statusKey), null, {label_attr: {class: 'form-check-label'}}) }}{{ form_errors(attribute(config_form, statusKey)) }}</div>
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -188,7 +188,7 @@
                 <h4 class="mb-3">{{ 'Chronopost Tax Rule configuration'|trans({}, domain) }}</h4>
                 <form action="{{ path('chronopost_pickup_point_tax_rule_save') }}" method="post">
                     {{ form_widget(tax_rule_form._token) }}
-                    {{ form_row(tax_rule_form.tax_rule_id) }}
+                    <div class="mb-3">{{ form_label(tax_rule_form.tax_rule_id) }}{{ form_widget(tax_rule_form.tax_rule_id, {attr: {class: 'form-select'}}) }}{{ form_errors(tax_rule_form.tax_rule_id) }}</div>
                     <button class="btn btn-success" type="submit">
                         <i class="bi bi-save"></i> {{ 'Save'|trans({}, domain) }}
                     </button>
