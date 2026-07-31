@@ -61,19 +61,33 @@ class SetDeliveryType implements EventSubscriberInterface
 
             $orderId = $orderEvent->getOrder()->getId();
 
+            /**
+             * Legacy front sets 'ChronopostPickupPointDeliveryType' through ORDER_SET_DELIVERY_MODULE,
+             * an event the new Twig checkout no longer dispatches. The new checkout stores the selected
+             * option code (the Chronopost delivery code) under 'deliveryModuleOption' instead.
+             */
+            $selectedCode = $request->getSession()->get('ChronopostPickupPointDeliveryType')
+                ?? $request->getSession()->get('deliveryModuleOption');
+
             foreach (ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_DELIVERY_CODES as $name => $code) {
-                if ($code === $request->getSession()->get('ChronopostPickupPointDeliveryType')) {
+                if ($code === $selectedCode) {
                     $chronopostOrder
                         ->setDeliveryType($name)
                         ->setDeliveryCode($code)
                     ;
                 }
+            }
 
-                if ($request->getSession()->get('pickup_address') !== null) {
-                    $idRelais = json_decode($request->getSession()->get('pickup_address'))->id;
-                    $chronopostOrder->setIdRelais($idRelais);
+            if (is_string($request->getSession()->get('pickup_address'))) {
+                $idRelais = json_decode($request->getSession()->get('pickup_address'))->id;
+                $chronopostOrder->setIdRelais($idRelais);
+            }
+
+            if (null === $chronopostOrder->getIdRelais() && $request->getSession()->has('pickup')) {
+                $pickup = $request->getSession()->get('pickup');
+                if (isset($pickup['id'])) {
+                    $chronopostOrder->setIdRelais($pickup['id']);
                 }
-
             }
 
             $chronopostOrder
