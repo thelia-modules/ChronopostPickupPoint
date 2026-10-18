@@ -103,8 +103,8 @@ class ChronopostPickupPoint extends AbstractDeliveryModuleWithState
 
             $message
                 ->setName(self::CHRONOPOST_CONFIRMATION_MESSAGE_NAME)
-                ->setHtmlLayoutFileName('order_shipped.html')
-                ->setTextLayoutFileName('order_shipped.txt')
+                ->setHtmlLayoutFileName('chronopost_pickup_point_order_shipped.html')
+                ->setTextLayoutFileName('chronopost_pickup_point_order_shipped.txt')
                 ->setLocale('en_US')
                 ->setTitle('Order send confirmation')
                 ->setSubject('Order send confirmation')
