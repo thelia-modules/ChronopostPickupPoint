@@ -13,8 +13,8 @@ class ChronopostPickupPointService
     public function saveAddress(
         ?string $company,
         ?string $address1,
-        ?string $address2 = null,
-        ?string $address3 = null,
+        ?string $address2,
+        ?string $address3,
         string $countryIsoAlpha2,
         string $zipCode,
         string $city,
