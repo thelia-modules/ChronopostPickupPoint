@@ -1,0 +1,28 @@
+{% extends "email-layout.html.twig" %}
+
+{# Do not provide a "Open in browser" link #}
+{% block browser %}{% endblock %}
+{# No pre-header #}
+{% block pre_header %}{% endblock %}
+
+{# Subject #}
+{% block email_subject %}{{ 'Your order confirmation Nº %ref%'|trans({'%ref%': order_ref}, 'chronopostpickuppoint.email.default', locale) }}{% endblock %}
+
+{# Title #}
+{% block email_title %}{% endblock %}
+
+{# Content #}
+{% block email_content %}
+    {% for customer in loop('customer.politesse', 'customer', {id: customer_id, current: 0}) %}
+        <p>{% if customer.TITLE == 1 %}{{ 'Dear Mr. '|trans({}, 'chronopostpickuppoint.email.default', locale) }}{% else %}{{ 'Dear Ms. '|trans({}, 'chronopostpickuppoint.email.default', locale) }}{% endif %}
+            {{ customer.FIRSTNAME }} {{ customer.LASTNAME }},
+        </p>
+    {% endfor %}
+
+    <p>{{ 'We are pleased to inform you that your order number'|trans({}, 'chronopostpickuppoint.email.default', locale) }} {{ order_ref }} {{ 'has been shipped on'|trans({}, 'chronopostpickuppoint.email.default', locale) }} {{ format_date(update_date, 'date') }} {{ 'with the tracking number'|trans({}, 'chronopostpickuppoint.email.default', locale) }} <strong>{{ package }}</strong>.</p>
+
+    <p>{{ '<a href="https://www.chronopost.fr/tracking-no-cms/suivi-page?listeNumerosLT=%package%">Click here</a> to track your shipment.'|trans({'%package%': package|url_encode}, 'chronopostpickuppoint.email.default', locale)|raw }}</p>
+    <p>{{ 'Thank you for your shopping with us and hope to see you soon on <a href="#">www.yourshop.com</a>'|trans({}, 'chronopostpickuppoint.email.default', locale)|raw }}</p>
+    <p>{{ 'Your on-line store Manager'|trans({}, 'chronopostpickuppoint.email.default', locale) }}<br />
+        {{ 'Your shop'|trans({}, 'chronopostpickuppoint.email.default', locale) }}</p>
+{% endblock %}
