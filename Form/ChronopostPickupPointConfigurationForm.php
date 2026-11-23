@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace ChronopostPickupPoint\Form;
 
+use ChronopostPickupPoint\ChronopostPickupPoint;
 use ChronopostPickupPoint\Config\ChronopostPickupPointConst;
 use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -50,14 +51,21 @@ class ChronopostPickupPointConfigurationForm extends BaseForm
             ->add(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD,
                 PasswordType::class,
                 [
-                    'required' => true,
-                    'data' => $config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD],
+                    // A password field is never sent back to the browser: left empty, the saved
+                    // password is kept (see the back-office controller).
+                    'required' => false,
                     'label' => Translator::getInstance()->trans('Chronopost password'),
                     'label_attr' => [
                         'for' => 'title',
                     ],
                     'attr' => [
-                        'placeholder' => Translator::getInstance()->trans('Your Chronopost password'),
+                        'placeholder' => Translator::getInstance()->trans(
+                            empty($config[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD])
+                                ? 'Your Chronopost password'
+                                : 'Password saved, leave empty to keep it',
+                            [],
+                            ChronopostPickupPoint::DOMAIN_NAME
+                        ),
                     ],
                 ]
             )

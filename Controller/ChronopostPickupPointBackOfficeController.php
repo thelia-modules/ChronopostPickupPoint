@@ -96,7 +96,11 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
 
             /** Basic informations */
             ChronopostPickupPoint::setConfigValue(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_CODE_CLIENT, $data[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_CODE_CLIENT]);
-            ChronopostPickupPoint::setConfigValue(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD, $data[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD]);
+            // The password field always comes back empty: an empty value keeps the saved password.
+            $password = (string) $data[ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD];
+            if ('' !== $password) {
+                ChronopostPickupPoint::setConfigValue(ChronopostPickupPointConst::CHRONOPOST_PICKUP_POINT_PASSWORD, $password);
+            }
 
             /** Delivery types */
             foreach (ChronopostPickupPointConst::getDeliveryTypesStatusKeys() as $statusKey) {
@@ -113,9 +117,12 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
                 $e->getMessage(),
                 $form
             );
+            $this->addFlash('danger', $e->getMessage());
 
             return $this->viewAction('configure');
         }
+
+        $this->addFlash('success', Translator::getInstance()->trans('Configuration saved', [], ChronopostPickupPoint::DOMAIN_NAME));
 
         return $this->generateSuccessRedirect($form);
     }

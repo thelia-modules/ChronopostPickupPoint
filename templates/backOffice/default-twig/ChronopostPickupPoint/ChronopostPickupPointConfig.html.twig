@@ -48,7 +48,7 @@
                                 <div class="col-md-6">
                                     <b>{{ 'Allowed shipping modes'|trans({}, domain) }}</b>
                                     {% for statusKey in delivery_status_keys %}
-                                        {% if config_form.vars.children[statusKey] is defined %}
+                                        {% if config_form[statusKey] is defined %}
                                             <div class="form-check mb-3">{{ form_widget(attribute(config_form, statusKey), {attr: {class: 'form-check-input'}}) }}{{ form_label(attribute(config_form, statusKey), null, {label_attr: {class: 'form-check-label'}}) }}{{ form_errors(attribute(config_form, statusKey)) }}</div>
                                         {% endif %}
                                     {% endfor %}
