@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ChronopostPickupPoint\Controller;
 
 
+use ChronopostPickupPoint\ChronopostPickupPoint;
 use ChronopostPickupPoint\Form\ChronopostPickupPointFreeShippingForm;
 use ChronopostPickupPoint\Model\ChronopostPickupPointAreaFreeshipping;
 use ChronopostPickupPoint\Model\ChronopostPickupPointAreaFreeshippingQuery;
@@ -12,9 +13,11 @@ use ChronopostPickupPoint\Model\ChronopostPickupPointDeliveryModeQuery;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\Security\AccessManager;
 use Thelia\Core\Security\Resource\AdminResources;
+use Thelia\Core\Translation\Translator;
 use Thelia\Model\AreaQuery;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -44,6 +47,12 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
             $deliveryModeId = $vform->get('delivery_mode')->getData();
 
             $deliveryMode = ChronopostPickupPointDeliveryModeQuery::create()->findOneById($deliveryModeId);
+            if (null === $deliveryMode) {
+                throw new \InvalidArgumentException(
+                    Translator::getInstance()->trans('The delivery mode is not valid', [], ChronopostPickupPoint::DOMAIN_NAME)
+                );
+            }
+
             $deliveryMode
                 ->setFreeshippingActive($freeshipping)
                 ->save();
@@ -75,6 +84,11 @@ class ChronopostPickupPointFreeShippingController extends BaseAdminController
 
         $data = $request->request;
         $deliveryMode = ChronopostPickupPointDeliveryModeQuery::create()->findOneById($data->get('delivery-mode'));
+        if (null === $deliveryMode) {
+            throw new NotFoundHttpException(
+                Translator::getInstance()->trans('The delivery mode is not valid', [], ChronopostPickupPoint::DOMAIN_NAME)
+            );
+        }
 
         $price = $data->get("price") === "" ? null : $data->get("price");
 

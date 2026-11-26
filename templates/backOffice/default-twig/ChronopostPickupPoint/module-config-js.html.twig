@@ -65,7 +65,10 @@
                 var params = {};
                 params[container.dataset.tokenName] = container.dataset.tokenValue;
                 params[container.dataset.modeField] = mode;
-                params[container.dataset.checkboxField] = checkbox.checked ? '1' : '';
+                // An unchecked checkbox must be left out: CheckboxType reads any submitted value, even '', as checked.
+                if (checkbox.checked) {
+                    params[container.dataset.checkboxField] = '1';
+                }
 
                 postSlice(container.dataset.actionUrl, params)
                     .then(function () {
