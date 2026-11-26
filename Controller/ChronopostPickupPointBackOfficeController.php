@@ -132,7 +132,7 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
     #[Route('/delivery-mode', name: '_delivery_mode', methods: ['POST'])]
     public function updateDeliveryModeTitle(Request $request)
     {
-        if (null !== $response = $this->checkAuth([AdminResources::MODULE], 'ChronopostHomeDelivery', AccessManager::UPDATE)) {
+        if (null !== $response = $this->checkAuth([AdminResources::MODULE], 'ChronopostPickupPoint', AccessManager::UPDATE)) {
             return $response;
         }
 
@@ -142,6 +142,12 @@ class ChronopostPickupPointBackOfficeController extends BaseAdminController
             $data = $this->validateForm($form)->getData();
 
             $deliveryMode = ChronopostPickupPointDeliveryModeQuery::create()->findPk($data['delivery_mode_id']);
+            if (null === $deliveryMode) {
+                throw new \InvalidArgumentException(
+                    Translator::getInstance()->trans('The delivery mode is not valid', [], ChronopostPickupPoint::DOMAIN_NAME)
+                );
+            }
+
             $lang = $request->hasSession() ? $request->getSession()->get('thelia.admin.edition.lang') : null;
             if ($lang === null) {
                 $lang = LangQuery::create()->filterByByDefault(1)->findOne();
